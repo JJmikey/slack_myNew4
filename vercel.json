@@ -1,0 +1,37 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "telegram_bot.py",
+            "use": "@vercel/python",
+            "config": {
+                "maxLambdaSize": "10mb"
+            }
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "telegram_bot.py"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/(.*)",
+            "headers" : [
+                {
+                    "key" : "Access-Control-Allow-Origin",
+                    "value" : "*"
+                },
+                {
+                    "key" : "Access-Control-Allow-Headers",
+                    "value" : "content-type"
+                },
+                {
+                    "key" : "Access-Control-Allow-Methods",
+                    "value" : "DELETE,PUT,POST,GET,OPTIONS"
+                }
+            ]
+        }
+    ]
+}
