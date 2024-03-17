@@ -2,7 +2,7 @@
     "version": 2,
     "builds": [
         {
-            "src": "telegram_bot.py",
+            "src": "slack_mynew4.py",
             "use": "@vercel/python",
             "config": {
                 "maxLambdaSize": "10mb"
@@ -12,7 +12,7 @@
     "rewrites": [
         {
             "source": "/(.*)",
-            "destination": "telegram_bot.py"
+            "destination": "slack_mynew4.py"
         }
     ],
     "headers": [
