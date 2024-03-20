@@ -39,11 +39,25 @@ def slack_events():
 
             # Use OpenAI GPT-4 to generate a message
             prompt = event.get('text')
-            response = openai.Completion.create(engine="gpt-4-1106-preview", prompt=prompt, max_tokens=4000)
+            response = openai.ChatCompletion.create(
+                            model="gpt-4-1106-preview",
+                            messages=[
+                                {
+                                    "role": "system",
+                                    "content": "You are a helpful assistant."
+                                },
+                                {
+                                    "role": "user",
+                                    "content": prompt
+                                }
+                            ]
+            )
 
+        response_message = response['choices'][0]['message']['content']
 
-            client.chat_postMessage(channel=channel_id, text=response.choices[0].text.strip())
-            return jsonify({}), 200 
+        client.chat_postMessage(channel=channel_id, text=response_message)
+        
+        return {"statusCode": 200}
         
 
 @app.route("/slack/auth", methods=["GET"])
