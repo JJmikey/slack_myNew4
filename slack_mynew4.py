@@ -29,7 +29,7 @@ def slack_events():
             user = event.get("user")
 
             # 防止 bot 自己回應自己的訊息
-            if user == "Your Bot User ID":
+            if user == slack_client_id:
                 return jsonify({})
 
             client.chat_postMessage(channel=channel_id, text="我收到你的訊息了!")
