@@ -26,16 +26,15 @@ def slack_events():
         # 當收到訊息時
         if payload.get("type") == "event_callback" and event.get("type") == "message":
             channel_id = event.get("channel")
-            user = event.get("user")
+            bot_id = event.get("bot_id")
 
-            # 防止 bot 自己回應自己的訊息
-            if user == slack_client_id:
+            # 如果 bot_id 屬性存在，說明這條消息由 Bot 發送
+            if bot_id:
                 return jsonify({})
 
             client.chat_postMessage(channel=channel_id, text="我收到你的訊息了!")
 
-        return jsonify({})
-
+        
 
 @app.route("/slack/auth", methods=["GET"])
 def slack_oauth():
