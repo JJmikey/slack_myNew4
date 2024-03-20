@@ -18,7 +18,7 @@ slack_client_secret = os.environ["SLACK_CLIENT_SECRET"]
 def slack_events():
     payload = request.json
     if "challenge" in payload:
-        return payload["challenge"]  # 返回所需要的`challenge`参数的值
+        return payload["challenge"], 200  # 马上返回所需要的`challenge`参数的值
     else:
         # 在這裡處理其它事件
         event = payload.get("event", {})
@@ -30,10 +30,10 @@ def slack_events():
 
             # 如果 bot_id 屬性存在，說明這條消息由 Bot 發送
             if bot_id:
-                return jsonify({})
+                return jsonify({}), 200 
 
             client.chat_postMessage(channel=channel_id, text="我收到你的訊息了!")
-
+            return jsonify({}), 200  # 查询完成后马上返回，避免重复
         
 
 @app.route("/slack/auth", methods=["GET"])
