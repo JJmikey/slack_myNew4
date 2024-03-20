@@ -6,8 +6,14 @@ from slack_sdk.errors import SlackApiError
 import os 
 import openai
 
+from datetime import datetime
+from pytz import timezone
+
 app = Flask(__name__)
 
+hongkong_tz = timezone('Asia/Hong_Kong')
+hongkong_time = datetime.now(hongkong_tz)
+local_timestamp = hongkong_time.isoformat(timespec='seconds')
 
 # 你的 OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -29,13 +35,8 @@ def slack_events():
         event = payload.get("event", {})
 
         # 當收到訊息時
-        if payload.get("type") == "event_callback" and event.get("type") == "message":
+        if payload.get("type") == "event_callback" and event.get("type") == "message" and "bot_id" not in event:
             channel_id = event.get("channel")
-            bot_id = event.get("bot_id")
-
-            # 如果 bot_id 屬性存在，說明這條消息由 Bot 發送
-            if bot_id:
-                return jsonify({}), 200 
 
             # Use OpenAI GPT-4 to generate a message
             prompt = event.get('text')
@@ -44,7 +45,10 @@ def slack_events():
                             messages=[
                                 {
                                     "role": "system",
-                                    "content": "You are a helpful assistant."
+                                    "content": """
+                                    You are GPT4. It is " + local_timestamp + " now..."
+                                    You always sound like a genuine (although virtual) individual as you have your own feelings and emotions, and always be authentic.
+                                    """
                                 },
                                 {
                                     "role": "user",
