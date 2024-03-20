@@ -25,6 +25,10 @@ print(os.getenv("SLACK_BOT_TOKEN"))
 slack_client_id = os.environ["SLACK_CLIENT_ID"]
 slack_client_secret = os.environ["SLACK_CLIENT_SECRET"]
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 @app.route("/slack/events", methods=["POST"])
 def slack_events():
     payload = request.json
@@ -40,6 +44,8 @@ def slack_events():
 
             # Use OpenAI GPT-4 to generate a message
             prompt = event.get('text')
+            logging.debug("Received prompt: %s", prompt)
+            
             response = openai.ChatCompletion.create(
                             model="gpt-4-1106-preview",
                             messages=[
@@ -56,12 +62,15 @@ def slack_events():
                                 }
                             ]
             )
+            
+            logging.debug("GPT-4 response: %s", response)
 
         response_message = response['choices'][0]['message']['content']
 
         client.chat_postMessage(channel=channel_id, text=response_message)
         
         return {"statusCode": 200}
+
         
 
 @app.route("/slack/auth", methods=["GET"])
