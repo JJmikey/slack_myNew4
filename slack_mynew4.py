@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 slack_bot_token = os.environ["SLACK_BOT_TOKEN"] # 用以調用 Slack API 
 client = WebClient(token=slack_bot_token)
-
+print(os.getenv("SLACK_BOT_TOKEN"))
 
 slack_client_id = os.environ["SLACK_CLIENT_ID"]
 slack_client_secret = os.environ["SLACK_CLIENT_SECRET"]
