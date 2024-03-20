@@ -4,8 +4,13 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 import os 
+import openai
 
 app = Flask(__name__)
+
+
+# 你的 OpenAI API key
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 slack_bot_token = os.environ["SLACK_BOT_TOKEN"] # 用以調用 Slack API 
 client = WebClient(token=slack_bot_token)
@@ -32,8 +37,13 @@ def slack_events():
             if bot_id:
                 return jsonify({}), 200 
 
-            client.chat_postMessage(channel=channel_id, text="我收到你的訊息了!")
-            return jsonify({}), 200  # 查询完成后马上返回，避免重复
+            # Use OpenAI GPT-4 to generate a message
+            prompt = event.get('text')
+            response = openai.Completion.create(engine="gpt-4-1106-preview", prompt=prompt, max_tokens=4000)
+
+
+            client.chat_postMessage(channel=channel_id, text=response.choices[0].text.strip())
+            return jsonify({}), 200 
         
 
 @app.route("/slack/auth", methods=["GET"])
