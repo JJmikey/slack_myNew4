@@ -35,7 +35,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 response_text = ""
 response_json = ""
-
+response_header = ""
 
 @app.route("/slack/events", methods=["POST"])
 def slack_events():
@@ -78,6 +78,7 @@ def slack_events():
                 global response_text, response_json
                 response_text = response.text
                 response_json = response.json()
+                response_header = response.headers
 
                 if response.text:
                     response_json = response.json()
@@ -132,7 +133,7 @@ def site_map():
 
 @app.route("/")
 def index():
-    return jsonify({'message': response_text}, {'response_json': response_json})
+    return jsonify({'message': response_text}, {'response_json': response_json},{'response_header': response_header})
     
 
 
