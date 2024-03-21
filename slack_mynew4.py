@@ -69,9 +69,9 @@ def slack_events():
                 # send a post request
                 response = requests.post(url, headers=headers, data=data)
 
-                logging.debug("Response status code: %s", response.status_code)
-                logging.debug("Response headers: %s", response.headers)
-                logging.debug("Response text: %s", response.text)
+                logging.info("Response status code: %s", response.status_code)
+                logging.info("Response headers: %s", response.headers)
+                logging.info("Response text: %s", response.text)
 
                 if response.text:
                     response_json = response.json()
