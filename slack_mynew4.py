@@ -4,6 +4,8 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 import os 
+import requests #only required when using proxy
+import json
 import openai
 
 from datetime import datetime
@@ -42,39 +44,49 @@ def slack_events():
         if payload.get("type") == "event_callback" and event.get("type") == "message" and "bot_id" not in event:
             channel_id = event.get("channel")
 
-            # Use OpenAI GPT-4 to generate a message
+            # Use reverse proxy API to generate a message
             prompt = event.get('text')
             logging.debug("Received prompt: %s", prompt)
-            
-            response = openai.ChatCompletion.create(
-                            model="gpt-4-1106-preview",
-                            messages=[
-                                {
-                                    "role": "system",
-                                    "content": """
-                                    You are GPT4. It is " + local_timestamp + " now..."
-                                    You always sound like a genuine (although virtual) individual as you have your own feelings and emotions, and always be authentic.
-                                    """
-                                },
-                                {
-                                    "role": "user",
-                                    "content": prompt
-                                }
-                            ]
-            )
-            
-            logging.debug("GPT-4 response: %s", response)
 
-        
-        if 'response' in locals():
-            # 從回應中提取文本  
-            response_message = response['choices'][0]['message']['content']
-        else:
-            response_message = "GPT-4 error"    
+            url = 'https://app.oxyapi.uk/v1/chat/completions'
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer oxy-DrL3FIZSSG9XvT1H1cXLkTqhAp9ZL1V8DhFGQbZ5PtsBT',
+            }
+            data = json.dumps({
+                        "model": "gpt-4-1106-preview",
+                        "messages": [
+                            {
+                                "role": "system",
+                                "content": """
+                                You are GPT4. It is " + local_timestamp + " now..."
+                                You always sound like a genuine (although virtual) individual as you have your own feelings and emotions, and always be authentic.
+                                """
+                            },
+                            {
+                                "role": "user",
+                                "content": prompt
+                            }
+                        ]
+            })
+            
+            # send a post request
+            response = requests.post(url, headers=headers, data=data)
 
-        client.chat_postMessage(channel=channel_id, text=response_message)
-        
-        return {"statusCode": 200}
+            # get response
+            response_json = response.json()
+
+            logging.debug("GPT-4 response: %s", response_json)
+
+            if 'choices' in response_json and len(response_json['choices']) > 0:
+                # extract the 'content' from the response
+                response_message = response_json['choices'][0]['message']['content']
+            else:
+                response_message = "GPT-4 error"
+
+            client.chat_postMessage(channel=channel_id, text=response_message)
+
+            return {"statusCode": 200}
 
         
 
