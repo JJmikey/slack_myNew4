@@ -6,6 +6,7 @@ from slack_sdk.errors import SlackApiError
 import os 
 import requests #only required when using proxy
 import json
+from json import JSONDecodeError
 import openai
 
 from datetime import datetime
@@ -146,7 +147,16 @@ def test():
 
     response = requests.post(url, headers=headers, data=json.dumps(data))
 
-    return response.json()
+    print("Status code: ", response.status_code)
+    print("Response: ", response.text)
+
+    if response.status_code == 200: 
+        try:
+            return response.json()
+        except JSONDecodeError:
+            return "Error: Response could not be parsed as JSON."
+    else:
+        return "Error: Received status code " + str(response.status_code)
 
 
 @app.route("/")
