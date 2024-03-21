@@ -33,8 +33,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-# 从环境变量获取 Slack webhook URL
-webhook_url = os.getenv('SLACK_WEBHOOK_URL')
+response_text = ""
 
 
 @app.route("/slack/events", methods=["POST"])
@@ -75,14 +74,16 @@ def slack_events():
 
                 #try to send response.txt to slack
                 # 建立请求的数据载体
-                slack_data = {'text': response.text}
+                #slack_data = {'text': response.text}
 
                 # 发送 POST 请求到 Slack webhook URL
-                response = requests.post(webhook_url, json=slack_data, headers={'Content-Type': 'application/json'})
+                #response = requests.post(webhook_url, json=slack_data, headers={'Content-Type': 'application/json'})
 
-                if response.status_code != 200:
-                    raise ValueError(f"Request to slack returned an error {response.status_code}, the response is:\n{response.text}")
+                #if response.status_code != 200:
+                #    raise ValueError(f"Request to slack returned an error {response.status_code}, the response is:\n{response.text}")
 
+                global response_text
+                response_text = response.text
 
                 if response.text:
                     response_json = response.json()
@@ -137,8 +138,8 @@ def site_map():
 
 @app.route("/")
 def index():
-    app.logger.info('Hello from the index page!')
-    return jsonify({'message':'Log message has been recorded.'})
+    return jsonify({'message': response_text})
+    
 
 
 if __name__ == "__main__":
