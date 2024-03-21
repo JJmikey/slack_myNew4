@@ -70,24 +70,30 @@ def slack_events():
                             }
                         ]
                         })
+
+                try:   
+                    # send a post request
+                    response = requests.post(url, headers=headers, data=data)
+
+                    logging.debug("Response status code: %s", response.status_code)
+                    logging.debug("Response headers: %s", response.headers)
+                    logging.debug("Response text: %s", response.text)
+
+
+                    # get response
+                    response_json = response.json()
             
-                # send a post request
-                response = requests.post(url, headers=headers, data=data)
+                    logging.debug("GPT-4 response: %s", response_json)
 
-                # get response
-                response_json = response.json()
-            
-                logging.debug("GPT-4 response: %s", response_json)
+                    if 'choices' in response_json and len(response_json['choices']) > 0:
+                        # extract the 'content' from the response
+                        response_message = response_json['choices'][0]['message']['content']
+                    else:
+                        response_message = "GPT-4 error"
 
-                if 'choices' in response_json and len(response_json['choices']) > 0:
-                    # extract the 'content' from the response
-                    response_message = response_json['choices'][0]['message']['content']
-                else:
-                    response_message = "GPT-4 error"
+                    client.chat_postMessage(channel=channel_id, text=response_message)
 
-                client.chat_postMessage(channel=channel_id, text=response_message)
-
-                return {"statusCode": 200}
+                    return {"statusCode": 200}
 
             except json.JSONDecodeError:
                 print(f"Failed to parse response as JSON: {response.text}")
@@ -118,6 +124,7 @@ def site_map():
         methods = ', '.join(sorted(rule.methods))
         output.append(f"{rule} ({methods})")
     return "<br>".join(sorted(output))
+
 
 
 if __name__ == "__main__":
