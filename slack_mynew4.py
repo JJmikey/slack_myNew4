@@ -73,19 +73,14 @@ def slack_events():
                 logging.debug("Response headers: %s", response.headers)
                 logging.debug("Response text: %s", response.text)
 
-                
-
-                global response_text, response_json
-                response_text = response.text
-                response_json = response.json()
-                response_header = response.headers
-
                 if response.text:
                     response_json = response.json()
+                    global response_text
+                    response_text = response.text
                 else:
                     logging.error("Empty response received.")
-                    return {"statusCode": 500, "body": "Empty response received."}
-            
+                    return {"statusCode": 500, "body": "Empty response received."}, 500
+                        
                 logging.debug("GPT-4 response: %s", response_json)
 
                 if 'choices' in response_json and len(response_json['choices']) > 0:
@@ -133,7 +128,7 @@ def site_map():
 
 @app.route("/")
 def index():
-    return jsonify({'message': response_text}, {'response_json': response_json},{'response_header': response_header})
+    return jsonify({'message': response_text}, {'response_json': response_json})
     
 
 
