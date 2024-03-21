@@ -135,6 +135,11 @@ def site_map():
     return "<br>".join(sorted(output))
 
 
+@app.route("/")
+def index():
+    app.logger.info('Hello from the index page!')
+    return jsonify({'message':'Log message has been recorded.'})
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080))) #for deploy on vercel
