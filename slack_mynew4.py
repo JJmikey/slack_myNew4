@@ -72,18 +72,11 @@ def slack_events():
                 logging.debug("Response headers: %s", response.headers)
                 logging.debug("Response text: %s", response.text)
 
-                #try to send response.txt to slack
-                # 建立请求的数据载体
-                #slack_data = {'text': response.text}
+                
 
-                # 发送 POST 请求到 Slack webhook URL
-                #response = requests.post(webhook_url, json=slack_data, headers={'Content-Type': 'application/json'})
-
-                #if response.status_code != 200:
-                #    raise ValueError(f"Request to slack returned an error {response.status_code}, the response is:\n{response.text}")
-
-                global response_text
+                global response_text, response_json
                 response_text = response.text
+                response_json = response.json()
 
                 if response.text:
                     response_json = response.json()
@@ -138,7 +131,7 @@ def site_map():
 
 @app.route("/")
 def index():
-    return jsonify({'message': response_text})
+    return jsonify({'message': response_text}, {'response_json': response_json})
     
 
 
