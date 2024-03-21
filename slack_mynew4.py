@@ -129,7 +129,7 @@ def test():
     url = 'https://app.oxyapi.uk/v1/chat/completions'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer '+os.environ.get('OXY_API_KEY'),
+        'Authorization': 'Bearer oxy-DrL3FIZSSG9XvT1H1cXLkTqhAp9ZL1V8DhFGQbZ5PtsBT',
     }
 
     data = {
