@@ -55,7 +55,7 @@ def slack_events():
                     'Authorization': 'Bearer oxy-DrL3FIZSSG9XvT1H1cXLkTqhAp9ZL1V8DhFGQbZ5PtsBT',
                 }
                 data = json.dumps({
-                        "model": "gpt-4-1106-preview",
+                        "model": "gpt-3.5-turbo",
                         "messages": [
                             {
                                 "role": "system",
@@ -71,33 +71,32 @@ def slack_events():
                         ]
                         })
 
-                try:   
-                    # send a post request
-                    response = requests.post(url, headers=headers, data=data)
+                # send a post request
+                response = requests.post(url, headers=headers, data=data)
 
-                    logging.debug("Response status code: %s", response.status_code)
-                    logging.debug("Response headers: %s", response.headers)
-                    logging.debug("Response text: %s", response.text)
+                logging.debug("Response status code: %s", response.status_code)
+                logging.debug("Response headers: %s", response.headers)
+                logging.debug("Response text: %s", response.text)
 
 
-                    # get response
-                    response_json = response.json()
+                # get response
+                response_json = response.json()
             
-                    logging.debug("GPT-4 response: %s", response_json)
+                logging.debug("GPT-4 response: %s", response_json)
 
-                    if 'choices' in response_json and len(response_json['choices']) > 0:
-                        # extract the 'content' from the response
-                        response_message = response_json['choices'][0]['message']['content']
-                    else:
-                        response_message = "GPT-4 error"
+                if 'choices' in response_json and len(response_json['choices']) > 0:
+                    # extract the 'content' from the response
+                    response_message = response_json['choices'][0]['message']['content']
+                else:
+                    response_message = "GPT-4 error"
 
-                    client.chat_postMessage(channel=channel_id, text=response_message)
+                client.chat_postMessage(channel=channel_id, text=response_message)
 
-                    return {"statusCode": 200}
+                return {"statusCode": 200}
 
             except json.JSONDecodeError:
                 print(f"Failed to parse response as JSON: {response.text}")
-
+                return {"statusCode": 500, "body": "Failed to parse response as JSON"}
         
 
 @app.route("/slack/auth", methods=["GET"])
