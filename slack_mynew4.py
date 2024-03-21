@@ -130,6 +130,20 @@ def test():
     headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer oxy-DrL3FIZSSG9XvT1H1cXLkTqhAp9ZL1V8DhFGQbZ5PtsBT',
+        'Transfer-Encoding': 'chunked',
+        'Connection':	'keep-alive',
+        'x-ratelimit-limit':2,
+        'x-ratelimit-remaining': 1,
+        'x-ratelimit-reset': '1711020605',
+        'oxygen-request-id':	'3487b146-68d1-4510-9168-2d07aa80b3d4',
+        'etag':		'W/"1d7-979LwGm87gLPYhHtJacaPw1Hykw"',
+        'status':		'200 OK',
+        'CF-Cache-Status':	'DYNAMIC'
+        'Report-To':	'{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=pkx93bE4khfzYD3X5DF3sT2mtCZSapU2nZBdplyZd1nU%2FiBxHknZ0v862p68Q%2BSdKR9hybbDI%2FzfrQtVc7aPXq11TuV%2FXNaH%2B4R8vqXSPS6IULmHDdKhvNaaJK9ThEx0"}],"group":"cf-nel","max_age":604800}',
+        'NEL':	'{"success_fraction":0,"report_to":"cf-nel","max_age":604800}',
+        'CF-RAY':	'867d9b90ea889d16-GUM',
+        'alt-svc':	'h3=":443"; ma=86400'',
+    
     }
 
     data = {
