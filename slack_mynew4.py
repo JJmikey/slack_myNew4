@@ -11,6 +11,8 @@ import openai
 from datetime import datetime
 from pytz import timezone
 
+
+
 app = Flask(__name__)
 
 hongkong_tz = timezone('Asia/Hong_Kong')
@@ -94,9 +96,8 @@ def slack_events():
 
                 return {"statusCode": 200}
 
-            except json.JSONDecodeError:
-                print(f"Failed to parse response as JSON: {response.text}")
-                return {"statusCode": 500, "body": "Failed to parse response as JSON"}
+            except Exception as e:
+                logging.error("Exception occurred", exc_info=True)
         
 
 @app.route("/slack/auth", methods=["GET"])
