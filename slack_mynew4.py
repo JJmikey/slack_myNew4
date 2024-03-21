@@ -81,8 +81,11 @@ def slack_events():
                 logging.debug("Response text: %s", response.text)
 
 
-                # get response
-                response_json = response.json()
+                if response.text:
+                    response_json = response.json()
+                else:
+                    logging.error("Empty response received.")
+                    return {"statusCode": 500, "body": "Empty response received."}
             
                 logging.debug("GPT-4 response: %s", response_json)
 
@@ -91,6 +94,8 @@ def slack_events():
                     response_message = response_json['choices'][0]['message']['content']
                 else:
                     response_message = "GPT-4 error"
+
+
 
                 client.chat_postMessage(channel=channel_id, text=response_message)
 
