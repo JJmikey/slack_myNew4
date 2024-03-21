@@ -42,18 +42,19 @@ def slack_events():
 
         # 當收到訊息時
         if payload.get("type") == "event_callback" and event.get("type") == "message" and "bot_id" not in event:
-            channel_id = event.get("channel")
+            try:    
+                channel_id = event.get("channel")
 
-            # Use reverse proxy API to generate a message
-            prompt = event.get('text')
-            logging.debug("Received prompt: %s", prompt)
+                # Use reverse proxy API to generate a message
+                prompt = event.get('text')
+                logging.debug("Received prompt: %s", prompt)
 
-            url = 'https://app.oxyapi.uk/v1/chat/completions'
-            headers = {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer oxy-DrL3FIZSSG9XvT1H1cXLkTqhAp9ZL1V8DhFGQbZ5PtsBT',
-            }
-            data = json.dumps({
+                url = 'https://app.oxyapi.uk/v1/chat/completions'
+                headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer oxy-DrL3FIZSSG9XvT1H1cXLkTqhAp9ZL1V8DhFGQbZ5PtsBT',
+                }
+                data = json.dumps({
                         "model": "gpt-4-1106-preview",
                         "messages": [
                             {
@@ -68,28 +69,28 @@ def slack_events():
                                 "content": prompt
                             }
                         ]
-            })
+                        })
             
-            # send a post request
-            response = requests.post(url, headers=headers, data=data)
+                # send a post request
+                response = requests.post(url, headers=headers, data=data)
 
-            # get response
-            try:
+                # get response
                 response_json = response.json()
+            
+                logging.debug("GPT-4 response: %s", response_json)
+
+                if 'choices' in response_json and len(response_json['choices']) > 0:
+                    # extract the 'content' from the response
+                    response_message = response_json['choices'][0]['message']['content']
+                else:
+                    response_message = "GPT-4 error"
+
+                client.chat_postMessage(channel=channel_id, text=response_message)
+
+                return {"statusCode": 200}
+
             except json.JSONDecodeError:
                 print(f"Failed to parse response as JSON: {response.text}")
-
-            logging.debug("GPT-4 response: %s", response_json)
-
-            if 'choices' in response_json and len(response_json['choices']) > 0:
-                # extract the 'content' from the response
-                response_message = response_json['choices'][0]['message']['content']
-            else:
-                response_message = "GPT-4 error"
-
-            client.chat_postMessage(channel=channel_id, text=response_message)
-
-            return {"statusCode": 200}
 
         
 
