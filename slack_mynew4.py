@@ -130,6 +130,24 @@ def site_map():
         output.append(f"{rule} ({methods})")
     return "<br>".join(sorted(output))
 
+@app.route("/test", methods=["POST"])
+def test():
+    url = 'https://app.oxyapi.uk/v1/chat/completions'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer oxy-DrL3FIZSSG9XvT1H1cXLkTqhAp9ZL1V8DhFGQbZ5PtsBT',
+    }
+
+    data = {
+        "model": "gpt-3.5-turbo",
+        "messages": [{"role": "user", "content": "講一個3個字的故事"}],
+        "temperature": 0.7
+    }
+
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+
+    return response.json()
+
 
 @app.route("/")
 def index():
