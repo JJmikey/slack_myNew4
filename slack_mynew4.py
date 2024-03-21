@@ -5,6 +5,8 @@ from slack_sdk.errors import SlackApiError
 
 import os 
 import requests #only required when using proxy
+from requests.exceptions import HTTPError
+
 import json
 from json import JSONDecodeError
 import openai
@@ -34,11 +36,7 @@ import logging
 
 logging.basicConfig(level=logging.info)
 
-response_text = ""
-response_json = ""
-response_header = ""
-global error_message
-error_message = ""
+
 
 @app.route("/slack/events", methods=["POST"])
 def slack_events():
@@ -78,13 +76,8 @@ def slack_events():
 
                 if response.text:
                     response_json = response.json()
-                    global response_text
-                    response_text = response.text
                 else:
                     logging.error("Empty response received.")
-                    global error_message
-                    error_message = "Empty response received."
-                    response_json = {'error': error_message}
                     return {"statusCode": 500, "body": "Empty response received."}, 500
                         
                 logging.debug("GPT-4 response: %s", response_json)
@@ -145,10 +138,17 @@ def test():
         "temperature": 0.7
     }
 
-    response = requests.post(url, headers=headers, data=json.dumps(data))
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data))
 
-    print("Status code: ", response.status_code)
-    print("Response: ", response.text)
+        # If the response was successful, no Exception will be raised
+        response.raise_for_status()
+    except HTTPError as http_err:
+        print(f'HTTP error occurred: {http_err}''')  # Python 3.6
+    except Exception as err:
+        print(f'其他錯誤發生: {err}')  # Python 3.6
+    else:
+        print('成功')
 
     if response.status_code == 200: 
         try:
@@ -159,9 +159,7 @@ def test():
         return "Error: Received status code " + str(response.status_code)
 
 
-@app.route("/")
-def index():
-    return jsonify(response_json)
+
     
 
 
