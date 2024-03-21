@@ -60,7 +60,7 @@ def slack_events():
                 url = 'https://app.oxyapi.uk/v1/chat/completions'
                 headers = {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer oxy-DrL3FIZSSG9XvT1H1cXLkTqhAp9ZL1V8DhFGQbZ5PtsBT',
+                    'Authorization': 'Bearer '+os.environ.get('OXY_API_KEY'),
                 }
                 data = json.dumps({
                         "model": "gpt-3.5-turbo",
@@ -135,7 +135,7 @@ def test():
     url = 'https://app.oxyapi.uk/v1/chat/completions'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer oxy-DrL3FIZSSG9XvT1H1cXLkTqhAp9ZL1V8DhFGQbZ5PtsBT',
+        'Authorization': 'Bearer '+os.environ.get('OXY_API_KEY'),
     }
 
     data = {
