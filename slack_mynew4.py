@@ -34,6 +34,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 response_text = ""
+response_json = ""
 
 
 @app.route("/slack/events", methods=["POST"])
