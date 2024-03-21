@@ -31,11 +31,13 @@ slack_client_secret = os.environ["SLACK_CLIENT_SECRET"]
 
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.info)
 
 response_text = ""
 response_json = ""
 response_header = ""
+global error_message
+error_message = ""
 
 @app.route("/slack/events", methods=["POST"])
 def slack_events():
@@ -79,6 +81,8 @@ def slack_events():
                     response_text = response.text
                 else:
                     logging.error("Empty response received.")
+                    global error_message
+                    error_message = "Empty response received."
                     return {"statusCode": 500, "body": "Empty response received."}, 500
                         
                 logging.debug("GPT-4 response: %s", response_json)
@@ -128,7 +132,8 @@ def site_map():
 
 @app.route("/")
 def index():
-    return jsonify({'message': response_text}, {'response_json': response_json})
+    global error_message
+    return jsonify({'message': response_text,'error': error_message}, {'response_json': response_json})
     
 
 
