@@ -74,7 +74,10 @@ def slack_events():
             response = requests.post(url, headers=headers, data=data)
 
             # get response
-            response_json = response.json()
+            try:
+                response_json = response.json()
+            except json.JSONDecodeError:
+                print(f"Failed to parse response as JSON: {response.text}")
 
             logging.debug("GPT-4 response: %s", response_json)
 
