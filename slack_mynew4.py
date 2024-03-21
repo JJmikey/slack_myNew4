@@ -83,6 +83,7 @@ def slack_events():
                     logging.error("Empty response received.")
                     global error_message
                     error_message = "Empty response received."
+                    response_json = {'error': error_message}
                     return {"statusCode": 500, "body": "Empty response received."}, 500
                         
                 logging.debug("GPT-4 response: %s", response_json)
@@ -132,8 +133,7 @@ def site_map():
 
 @app.route("/")
 def index():
-    global error_message
-    return jsonify({'message': response_text,'error': error_message}, {'response_json': response_json})
+    return jsonify(response_json)
     
 
 
