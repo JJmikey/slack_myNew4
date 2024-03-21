@@ -58,19 +58,8 @@ def slack_events():
                 }
                 data = json.dumps({
                         "model": "gpt-3.5-turbo",
-                        "messages": [
-                            {
-                                "role": "system",
-                                "content": """
-                                You are GPT4. It is " + local_timestamp + " now..."
-                                You always sound like a genuine (although virtual) individual as you have your own feelings and emotions, and always be authentic.
-                                """
-                            },
-                            {
-                                "role": "user",
-                                "content": prompt
-                            }
-                        ]
+                        "messages": [{"role": "user", "content": "你幾時退休"}],
+                        "temperature": 0.7
                         })
 
                 # send a post request
@@ -103,6 +92,7 @@ def slack_events():
 
             except Exception as e:
                 logging.error("Exception occurred", exc_info=True)
+                return {"statusCode": 500, "body": "An error occurred: " + str(e)}
         
 
 @app.route("/slack/auth", methods=["GET"])
