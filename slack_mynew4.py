@@ -160,7 +160,9 @@ def test():
         return "Error: Received status code " + str(response.status_code)
 
 
-
+@app.route('/')
+def index():
+    return "Hello, world!"
     
 
 
