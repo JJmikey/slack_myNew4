@@ -41,7 +41,7 @@ def handle_image(event):
 
     try:
         img = Image.open(response.raw)
-    except PIL.UnidentifiedImageError:  # Catch the exception and handle it, if any
+    except Image.UnidentifiedImageError:  # Catch the exception and handle it, if any
         print("Unable to open image.")
 
     # 使用 GPT-4 Vision 處理圖像
