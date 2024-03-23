@@ -78,8 +78,9 @@ def slack_events():
             # Use OpenAI GPT-4 to generate a message
             prompt = event.get('text')
             logging.debug("Received prompt: %s", prompt)
-            
-            response = openai.ChatCompletion.create(
+
+            try:
+                response = openai.ChatCompletion.create(
                             model="gpt-4-1106-preview",
                             messages=[
                                 {
@@ -96,16 +97,11 @@ def slack_events():
                             ]
                 )
             
-            logging.debug("GPT-4 response: %s", response)
-
+                logging.debug("GPT-4 response: %s", response)
+                client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
         
-        if 'response' in locals():
-            # 從回應中提取文本  
-            response_message = response['choices'][0]['message']['content']
-        else:
-            response_message = "GPT-4 error"    
-
-        client.chat_postMessage(channel=channel_id, text=response_message)
+            except Exception as e:
+                logging.debug("Error: %s", e)
         
         return {"statusCode": 200}
 
