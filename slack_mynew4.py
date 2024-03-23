@@ -98,7 +98,7 @@ def slack_events():
             logging.debug("GPT-4 response: %s", response)
 
         
-        if 'response' in locals() or 'response_message' in locals():
+        if 'response' in locals():
             # 從回應中提取文本  
             response_message = response['choices'][0]['message']['content']
         else:
