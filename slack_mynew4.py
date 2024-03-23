@@ -39,30 +39,24 @@ def handle_image(file_url):
     # 從 file_url 獲取圖像
     img_data = requests.get(file_url).content
 
-    # 打開和儲存圖像
-    with open('image_name.jpg', 'wb') as handler:
-        handler.write(img_data)
-
-    # 讀取圖像以及用 Base64 編碼，並將結果傳遞到 GPT-4 Vision
-    with open('image_name.jpg', "rb") as img_file:
-        b64_string = base64.b64encode(img_file.read()).decode()
+    # 將圖像數據轉換為 base64 編碼
+    b64_string = base64.b64encode(img_data).decode()
 
     # 使用 GPT-4 Vision 處理圖像
     vision_response = openai.ChatCompletion.create(
         model="gpt-4-vision-preview",
-        messages=[
+         messages=[
             {
                 "role": "system",
-                "content": """
-                start your reply with "GPT4:". 解釋題目5。
-                """
+                "content": "You are a helpful assistant."
             },
             {
                 "role": "user",
-                "content": "data:image/jpeg;base64," + b64_string
+                "content": "start your reply with "GPT4:". 解釋這個圖片。",
+                'img_data': b64_string
             }
         ]
-    )
+        )
 
     response_message = vision_response['choices'][0]['message']['content']
     return response_message
