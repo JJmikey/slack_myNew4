@@ -48,12 +48,13 @@ def handle_image(file_url):
          messages=[
             {
                 "role": "system",
-                "content": "You are a helpful assistant."
+                "content": """
+                解釋題目5。
+                """
             },
             {
                 "role": "user",
-                "content": "start your reply with 'GPT4:'. 解釋這個圖片。",
-                'img_data': b64_string
+                "content": "data:image/jpeg;base64," + b64_string
             }
         ]
         )
