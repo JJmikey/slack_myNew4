@@ -9,7 +9,8 @@ import openai
 
 import requests
 from PIL import Image
-from io import BytesIO
+from io 
+import base64
 
 from datetime import datetime
 from pytz import timezone
@@ -35,14 +36,16 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 def handle_image(event):
-    file_url = event['files'][0]['url_private']
-    response = requests.get(file_url, stream=True)
-    response.raw.decode_content = True  # Handle spurious Content-Encoding issues, if any
+    # 從 file_url 獲取圖像
+    img_data = requests.get(file_url).content
 
-    try:
-        img = Image.open(response.raw)
-    except Image.UnidentifiedImageError:  # Catch the exception and handle it, if any
-        print("Unable to open image.")
+    # 打開和儲存圖像
+    with open('image_name.jpg', 'wb') as handler:
+        handler.write(img_data)
+
+    # 讀取圖像以及用 Base64 編碼，並將結果傳遞到 GPT-4 Vision
+    with open('image_name.jpg', "rb") as img_file:
+        b64_string = base64.b64encode(img_file.read()).decode()
 
     # 使用 GPT-4 Vision 處理圖像
     vision_response = openai.ChatCompletion.create(
@@ -56,7 +59,7 @@ def handle_image(event):
             },
             {
                 "role": "user",
-                "content": file_url
+                "content": "data:image/jpeg;base64," + b64_string
             }
         ]
     )
@@ -69,29 +72,26 @@ def handle_image(event):
 @app.route("/slack/events", methods=["POST"])
 def slack_events():
     payload = request.json
+    
     if "challenge" in payload:
         return payload["challenge"], 200  # 马上返回所需要的`challenge`参数的值
     else:
-        # 在這裡處理其它事件
-        event = payload.get("event", {})
-        channel_id = event.get("channel")
-        if channel_id is not None:
-            if 'files' in event:
-                response_message = handle_image(event)
-                client.chat_postMessage(channel=channel_id, text=response_message)
-
-                return {"statusCode": 200}  # 返回 200 状态码
-
-        # 當收到訊息時
-        if payload.get("type") == "event_callback" and event.get("type") == "message" and "bot_id" not in event:
+        # 確保每個事件只被處理一次
+        if payload.get("type") == "event_callback":
+            event = payload.get("event", {})
             channel_id = event.get("channel")
+            if channel_id is not None:
+                # 判斷這是圖像還是一般訊息事件
+                if 'files' in event:     # 如果事件包含文件
+                    file_url = event['files'][0]['url_private']
+                    response_message = handle_image(file_url)  # 處理並回覆圖片
+                elif event.get("type") == "message" and "bot_id" not in event:
+                    # Use OpenAI GPT-4 to generate a message
+                    prompt = event.get('text')
+                    logging.debug("Received prompt: %s", prompt)
 
-            # Use OpenAI GPT-4 to generate a message
-            prompt = event.get('text')
-            logging.debug("Received prompt: %s", prompt)
-
-            try:
-                response = openai.ChatCompletion.create(
+                    try:
+                        response = openai.ChatCompletion.create(
                             model="gpt-4-1106-preview",
                             messages=[
                                 {
@@ -106,13 +106,13 @@ def slack_events():
                                     "content": prompt
                                 }
                             ]
-                )
+                        )
             
-                logging.debug("GPT-4 response: %s", response)
-                client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
+                        logging.debug("GPT-4 response: %s", response)
+                        client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
         
-            except Exception as e:
-                logging.debug("Error: %s", e)
+                    except Exception as e:
+                        logging.debug("Error: %s", e)
         
         return {"statusCode": 200}
 
