@@ -4,17 +4,11 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 import os 
-import requests #only required when using proxy
-from requests.exceptions import HTTPError
 
-import json
-from json import JSONDecodeError
 import openai
 
 from datetime import datetime
 from pytz import timezone
-
-
 
 app = Flask(__name__)
 
@@ -34,7 +28,30 @@ slack_client_secret = os.environ["SLACK_CLIENT_SECRET"]
 
 import logging
 
-logging.basicConfig(level=logging.info)
+logging.basicConfig(level=logging.DEBUG)
+
+def handle_image(event):
+    file_url = event['files'][0]['url_private']
+
+    # 使用 GPT-4 Vision 處理圖像
+    vision_response = openai.ChatCompletion.create(
+        model="gpt-4-1106-preview",
+        messages=[
+            {
+                "role": "system",
+                "content": """
+                解釋題目5。
+                """
+            },
+            {
+                "role": "user",
+                "content": file_url
+            }
+        ]
+    )
+
+    response_message = vision_response['choices'][0]['message']['content']
+    return response_message
 
 
 
@@ -47,56 +64,49 @@ def slack_events():
         # 在這裡處理其它事件
         event = payload.get("event", {})
 
+        if 'files' in event:
+            response_message = handle_image(event)
+            client.chat_postMessage(channel=channel_id, text=response_message)
+
+
         # 當收到訊息時
         if payload.get("type") == "event_callback" and event.get("type") == "message" and "bot_id" not in event:
-            try:    
-                channel_id = event.get("channel")
+            channel_id = event.get("channel")
 
-                # Use reverse proxy API to generate a message
-                prompt = event.get('text')
-                logging.debug("Received prompt: %s", prompt)
+            # Use OpenAI GPT-4 to generate a message
+            prompt = event.get('text')
+            logging.debug("Received prompt: %s", prompt)
+            
+            response = openai.ChatCompletion.create(
+                            model="gpt-4-1106-preview",
+                            messages=[
+                                {
+                                    "role": "system",
+                                    "content": """
+                                    You are GPT4. It is " + local_timestamp + " now..."
+                                    You always sound like a genuine (although virtual) individual as you have your own feelings and emotions, and always be authentic.
+                                    """
+                                },
+                                {
+                                    "role": "user",
+                                    "content": prompt
+                                }
+                            ]
+            )
+            
+            logging.debug("GPT-4 response: %s", response)
 
-                url = 'https://app.oxyapi.uk/v1/chat/completions'
-                headers = {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer '+os.environ.get('OXY_API_KEY'),
-                }
-                data = json.dumps({
-                        "model": "gpt-3.5-turbo",
-                        "messages": [{"role": "user", "content": "你幾時退休"}],
-                        "temperature": 0.7
-                        })
+        
+        if 'response' in locals() or 'response_message' in locals():
+            # 從回應中提取文本  
+            response_message = response['choices'][0]['message']['content']
+        else:
+            response_message = "GPT-4 error"    
 
-                # send a post request
-                response = requests.post(url, headers=headers, data=data)
+        client.chat_postMessage(channel=channel_id, text=response_message)
+        
+        return {"statusCode": 200}
 
-                logging.info("Response status code: %s", response.status_code)
-                logging.info("Response headers: %s", response.headers)
-                logging.info("Response text: %s", response.text)
-
-                if response.text:
-                    response_json = response.json()
-                else:
-                    logging.error("Empty response received.")
-                    return {"statusCode": 500, "body": "Empty response received."}, 500
-                        
-                logging.debug("GPT-4 response: %s", response_json)
-
-                if 'choices' in response_json and len(response_json['choices']) > 0:
-                    # extract the 'content' from the response
-                    response_message = response_json['choices'][0]['message']['content']
-                else:
-                    response_message = "GPT-4 error"
-
-
-
-                client.chat_postMessage(channel=channel_id, text=response_message)
-
-                return {"statusCode": 200}
-
-            except Exception as e:
-                logging.error("Exception occurred", exc_info=True)
-                return {"statusCode": 500, "body": "An error occurred: " + str(e)}
         
 
 @app.route("/slack/auth", methods=["GET"])
@@ -123,47 +133,6 @@ def site_map():
         methods = ', '.join(sorted(rule.methods))
         output.append(f"{rule} ({methods})")
     return "<br>".join(sorted(output))
-
-@app.route("/test", methods=["POST"])
-def test():
-    url = 'https://app.oxyapi.uk/v1/chat/completions'
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer oxy-DrL3FIZSSG9XvT1H1cXLkTqhAp9ZL1V8DhFGQbZ5PtsBT',
-          
-    }
-
-    data = {
-        "model": "gpt-3.5-turbo",
-        "messages": [{"role": "user", "content": "講一個3個字的故事"}],
-        "temperature": 0.7
-    }
-
-    try:
-        response = requests.post(url, headers=headers, data=json.dumps(data))
-
-        # If the response was successful, no Exception will be raised
-        response.raise_for_status()
-    except HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}''')  # Python 3.6
-    except Exception as err:
-        print(f'其他錯誤發生: {err}')  # Python 3.6
-    else:
-        print('成功')
-
-    if response.status_code == 200: 
-        try:
-            return response.json()
-        except JSONDecodeError:
-            return "Error: Response could not be parsed as JSON."
-    else:
-        return "Error: Received status code " + str(response.status_code)
-
-
-@app.route('/')
-def index():
-    return "Hello, world!"
-    
 
 
 if __name__ == "__main__":
