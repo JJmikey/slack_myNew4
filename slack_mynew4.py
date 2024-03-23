@@ -35,7 +35,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-def handle_image(event):
+def handle_image(file_url):
     # 從 file_url 獲取圖像
     img_data = requests.get(file_url).content
 
