@@ -40,7 +40,7 @@ def handle_image(event):
             {
                 "role": "system",
                 "content": """
-                解釋題目5。
+                start your reply with "GPT4:". 解釋題目5。
                 """
             },
             {
