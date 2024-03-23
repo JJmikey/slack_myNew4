@@ -9,7 +9,7 @@ import openai
 
 import requests
 from PIL import Image
-from io 
+import io 
 import base64
 
 from datetime import datetime
