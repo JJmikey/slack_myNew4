@@ -7,6 +7,10 @@ import os
 
 import openai
 
+import requests
+from PIL import Image
+from io import BytesIO
+
 from datetime import datetime
 from pytz import timezone
 
@@ -32,6 +36,13 @@ logging.basicConfig(level=logging.DEBUG)
 
 def handle_image(event):
     file_url = event['files'][0]['url_private']
+    response = requests.get(file_url, stream=True)
+    img = Image.open(response.raw)
+
+    # Convert the image to binary byte string
+    buffer = BytesIO()
+    img.save(buffer, format='JPEG')
+    byte_arr = buffer.getvalue()
 
     # 使用 GPT-4 Vision 處理圖像
     vision_response = openai.ChatCompletion.create(
