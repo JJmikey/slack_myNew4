@@ -35,7 +35,7 @@ def handle_image(event):
 
     # 使用 GPT-4 Vision 處理圖像
     vision_response = openai.ChatCompletion.create(
-        model="gpt-4-1106-vision-preview",
+        model="gpt-4-vision-preview",
         messages=[
             {
                 "role": "system",
