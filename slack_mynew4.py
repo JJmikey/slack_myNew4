@@ -52,7 +52,7 @@ def handle_image(file_url):
             },
             {
                 "role": "user",
-                "content": "start your reply with "GPT4:". 解釋這個圖片。",
+                "content": "start your reply with 'GPT4:'. 解釋這個圖片。",
                 'img_data': b64_string
             }
         ]
