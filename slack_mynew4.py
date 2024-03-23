@@ -69,6 +69,7 @@ def slack_events():
                 response_message = handle_image(event)
                 client.chat_postMessage(channel=channel_id, text=response_message)
 
+                return response_message
 
         # 當收到訊息時
         if payload.get("type") == "event_callback" and event.get("type") == "message" and "bot_id" not in event:
