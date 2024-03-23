@@ -64,10 +64,10 @@ def slack_events():
         # 在這裡處理其它事件
         event = payload.get("event", {})
         channel_id = event.get("channel")
-        
-        if 'files' in event:
-            response_message = handle_image(event)
-            client.chat_postMessage(channel=channel_id, text=response_message)
+        if channel_id is not None:
+            if 'files' in event:
+                response_message = handle_image(event)
+                client.chat_postMessage(channel=channel_id, text=response_message)
 
 
         # 當收到訊息時
@@ -93,7 +93,7 @@ def slack_events():
                                     "content": prompt
                                 }
                             ]
-            )
+                )
             
             logging.debug("GPT-4 response: %s", response)
 
