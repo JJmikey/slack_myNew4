@@ -37,12 +37,12 @@ logging.basicConfig(level=logging.DEBUG)
 def handle_image(event):
     file_url = event['files'][0]['url_private']
     response = requests.get(file_url, stream=True)
-    img = Image.open(response.raw)
+    response.raw.decode_content = True  # Handle spurious Content-Encoding issues, if any
 
-    # Convert the image to binary byte string
-    buffer = BytesIO()
-    img.save(buffer, format='JPEG')
-    byte_arr = buffer.getvalue()
+    try:
+        img = Image.open(response.raw)
+    except PIL.UnidentifiedImageError:  # Catch the exception and handle it, if any
+        print("Unable to open image.")
 
     # 使用 GPT-4 Vision 處理圖像
     vision_response = openai.ChatCompletion.create(
