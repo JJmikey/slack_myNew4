@@ -63,7 +63,8 @@ def slack_events():
     else:
         # 在這裡處理其它事件
         event = payload.get("event", {})
-
+        channel_id = event.get("channel")
+        
         if 'files' in event:
             response_message = handle_image(event)
             client.chat_postMessage(channel=channel_id, text=response_message)
