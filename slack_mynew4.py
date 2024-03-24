@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask import Response
 from slack_sdk.oauth import AuthorizeUrlGenerator
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
@@ -100,7 +101,10 @@ def slack_events():
 
 
 
-    return {"statusCode": 200}
+    response = Response()
+    response.headers['X-Slack-No-Retry'] = 1
+    response.status_code = 200
+    return response
 
 @app.route("/slack/events/backup", methods=["POST"])
 def slack_events_backup():
