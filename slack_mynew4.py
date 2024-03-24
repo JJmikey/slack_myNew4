@@ -67,7 +67,7 @@ def handle_image(file_url):
 @app.route("/slack/events", methods=["POST"])
 def slack_events():
     payload = request.json
-    #return payload
+    return payload
 
     if "challenge" in payload:
         return payload["challenge"], 200  # 马上返回所需要的`challenge`参数的值
