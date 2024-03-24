@@ -85,7 +85,7 @@ def slack_events():
 
     return {"statusCode": 200}
 
-@app.route("/slack/events_backup", methods=["POST"])
+@app.route("/slack/events/backup", methods=["POST"])
 def slack_events():
     payload = request.json
     #return payload
