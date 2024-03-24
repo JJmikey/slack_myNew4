@@ -49,7 +49,7 @@ def handle_image(file_url,prompt):
          messages=[
             {
                 "role": "system",
-                "content":prompt
+                "content":"start your reply with 'GPT4:'. Describe the photo."
             },
             {
                 "role": "user",
