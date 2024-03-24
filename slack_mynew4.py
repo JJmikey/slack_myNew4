@@ -67,7 +67,7 @@ def handle_image(file_url):
 @app.route("/slack/events", methods=["POST"])
 def slack_events():
     payload = request.json
-    return payload
+    #return payload
 
     if "challenge" in payload:
         return payload["challenge"], 200  # 马上返回所需要的`challenge`参数的值
@@ -79,7 +79,8 @@ def slack_events():
             text = event.get("text")
             channel_id = event.get("channel")
  
-            if user and text and channel_id: 
+            # Ignore bot's own messages
+            if user and text and channel_id and 'bot_id' not in event:
                 # when a text message comes in from a user, respond "GOT IT"
                 client.chat_postMessage(channel=channel_id, text='GOT IT')
 
