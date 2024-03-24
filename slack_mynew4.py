@@ -75,16 +75,14 @@ def slack_events():
         # 確保每個事件只被處理一次
         if payload.get("type") == "event_callback":
             event = payload.get("event", {})
+            user = event.get("user")
+            text = event.get("text")
             channel_id = event.get("channel")
-            if channel_id is not None:
-                # 判斷這是圖像還是一般訊息事件
-                if 'files' in event:     # 如果事件包含文件
-                    file_url = event['files'][0]['url_private']
-                    response_message = handle_image(file_url)  # 處理並回覆圖片
-                elif event.get("type") == "message" and "bot_id" not in event:
-                    client.chat_postMessage(channel=channel_id, text='got it!')
-        
-                    
+ 
+            if user and text and channel_id: 
+                # when a text message comes in from a user, respond "GOT IT"
+                client.chat_postMessage(channel=channel_id, text='GOT IT')
+
     return {"statusCode": 200}
 
 @app.route("/slack/events_backup", methods=["POST"])
