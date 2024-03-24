@@ -78,9 +78,9 @@ def slack_events():
             user = event.get("user")
             prompt = event.get("text")
             channel_id = event.get("channel")
- 
+            bot_id = event.get("bot_id")
             # Ignore bot's own messages
-            if user and prompt and channel_id and 'bot_id' not in event:
+            if user and prompt and channel_id and bot_id not in event:
                 # when a text message comes in from a user, respond "GOT IT"
                 #client.chat_postMessage(channel=channel_id, text='GOT IT')
                 response = openai.ChatCompletion.create(
