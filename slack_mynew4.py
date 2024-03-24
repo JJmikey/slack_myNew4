@@ -27,7 +27,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 slack_bot_token = os.environ["SLACK_BOT_TOKEN"] # 用以調用 Slack API 
 client = WebClient(token=slack_bot_token)
-print(os.getenv("SLACK_BOT_TOKEN"))
+
 
 slack_client_id = os.environ["SLACK_CLIENT_ID"]
 slack_client_secret = os.environ["SLACK_CLIENT_SECRET"]
@@ -121,7 +121,11 @@ def slack_events():
 
                 # 從 Response 獲取圖像URL
                 file_url = file_info_response.json()['file']['url_private']
-                client.chat_postMessage(channel=channel_id, text='photo!')
+                response = client.slackPostMessage(
+                            token=slack_bot_token,
+                            channel=channel_id,
+                            text=f"File shared with id: {file_id}, and file_info_response: {file_info_response.json()}"
+                )
                 return file_url
                 prompt = event.get("text")
 
