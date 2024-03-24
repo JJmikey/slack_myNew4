@@ -67,7 +67,8 @@ def handle_image(file_url):
 @app.route("/slack/events", methods=["POST"])
 def slack_events():
     payload = request.json
-    
+    return payload
+
     if "challenge" in payload:
         return payload["challenge"], 200  # 马上返回所需要的`challenge`参数的值
     else:
@@ -93,7 +94,7 @@ def slack_events():
                                     "role": "system",
                                     "content": """
                                     You are GPT4. It is " + local_timestamp + " now..."
-                                    You always sound like a genuine (although virtual) individual as you have your own feelings and emotions, and always be authentic.
+                                    你是個有情感能力的AI.
                                     """
                                 },
                                 {
