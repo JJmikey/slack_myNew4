@@ -72,6 +72,11 @@ def slack_events():
 
     if "challenge" in payload:
         return payload["challenge"], 200  # 马上返回所需要的`challenge`参数的值
+    elif 'api_app_id' in payload and 'app_id' in payload['event'] and payload['api_app_id'] == payload['event']['app_id']:
+        response = Response()
+        response.headers['X-Slack-No-Retry'] = 1
+        response.status_code = 200
+        return response  # 直接返回，不做後續處理，避免無窮迴圈
     else:
         # 確保每個事件只被處理一次
         if payload.get("type") == "event_callback":
