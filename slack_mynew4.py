@@ -36,7 +36,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-def handle_image(file_url):
+def handle_image(file_url,prompt):
     # 從 file_url 獲取圖像
     img_data = requests.get(file_url).content
 
@@ -49,9 +49,7 @@ def handle_image(file_url):
          messages=[
             {
                 "role": "system",
-                "content": """
-                解釋題目5。
-                """
+                "content":prompt
             },
             {
                 "role": "user",
@@ -68,8 +66,10 @@ def handle_image(file_url):
 @app.route("/slack/events", methods=["POST"])
 def slack_events():
     payload = request.json
-    #return payload
+    #return payload (截停ERROR BOT時用)
 
+    # Slack 在時限內收不到回應會認為 Request lost，Slack 會再次重複呼叫
+    # 會造成重複請求、回應的問題，因此我們可以在 Response Headers 設置 X-Slack-No-Retry: 1 告知 Slack ，就算沒在時限內收到回應也不需 Retry 
     request_headers = request.headers
     headers = {'X-Slack-No-Retry':1}
     # 如果是 Slack Retry 的請求...忽略
@@ -83,16 +83,20 @@ def slack_events():
         # 確保每個事件只被處理一次
         if payload.get("type") == "event_callback":
             event = payload.get("event", {})
-            user = event.get("user")
-            prompt = event.get("text")
-            channel_id = event.get("channel")
-            bot_id = event.get("bot_id")
-            # Ignore bot's own messages
-            if user and prompt and channel_id and not bot_id:
-                # when a text message comes in from a user, respond "GOT IT"
-                #client.chat_postMessage(channel=channel_id, text='GOT IT')
+            event_type = event.get("type")
+
+            if event_type == "message":
+                user = event.get("user")
+                prompt = event.get("text")
+                channel_id = event.get("channel")
+                bot_id = event.get("bot_id")
+
+                # Ignore bot's own messages
+                if user and prompt and channel_id and not bot_id:
+                    # when a text message comes in from a user, respond "GOT IT"
+                    #client.chat_postMessage(channel=channel_id, text='GOT IT')
                 
-                response = openai.ChatCompletion.create(
+                    response = openai.ChatCompletion.create(
                             model="gpt-4-1106-preview",
                             messages=[
                                 {
@@ -105,8 +109,25 @@ def slack_events():
                                 }
                             ]
                         )
-                client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
+                    client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
 
+            elif event_type == "file_shared":
+                # 獲取 file_id
+                file_id = event.get("file_id")
+
+                # Now retrieve the shared file's info.
+                FILE_INFO_URL = 'https://slack.com/api/files.info'
+                file_info_response = requests.get(FILE_INFO_URL, params={'token': slack_bot_token, 'file': file_id})
+
+                # 從 Response 獲取圖像URL
+                file_url = file_info_response.json()['file']['url_private']
+
+                prompt = event.get("text")
+
+                # 調用 handle_image 函數
+                response_message = handle_image(file_url,prompt)
+
+                client.chat_postMessage(channel=channel_id, text=response_message)
 
 
     return {"statusCode": 200}
@@ -128,35 +149,7 @@ def slack_events_backup():
                 if 'files' in event:     # 如果事件包含文件
                     file_url = event['files'][0]['url_private']
                     response_message = handle_image(file_url)  # 處理並回覆圖片
-                elif event.get("type") == "message" and "bot_id" not in event:
-                    # Use OpenAI GPT-4 to generate a message
-                    prompt = event.get('text')
-                    logging.debug("Received prompt: %s", prompt)
-
-                    try:
-                        response = openai.ChatCompletion.create(
-                            model="gpt-4-1106-preview",
-                            messages=[
-                                {
-                                    "role": "system",
-                                    "content": """
-                                    You are GPT4. It is " + local_timestamp + " now..."
-                                    你是個有情感能力的AI.
-                                    """
-                                },
-                                {
-                                    "role": "user",
-                                    "content": prompt
-                                }
-                            ]
-                        )
-            
-                        logging.debug("GPT-4 response: %s", response)
-                        client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
-        
-                    except Exception as e:
-                        logging.debug("Error: %s", e)
-        
+                
         return {"statusCode": 200}
 
 
