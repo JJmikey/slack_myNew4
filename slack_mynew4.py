@@ -70,13 +70,15 @@ def slack_events():
     payload = request.json
     #return payload
 
+    request_headers = request.headers
+    headers = {'X-Slack-No-Retry':1}
+    # 如果是 Slack Retry 的請求...忽略
+    if request_headers and 'X-Slack-Retry-Num' in request_headers:
+        return ('OK!', 200, headers)
+
     if "challenge" in payload:
         return payload["challenge"], 200  # 马上返回所需要的`challenge`参数的值
-    elif 'api_app_id' in payload and 'app_id' in payload['event'] and payload['api_app_id'] == payload['event']['app_id']:
-        response = Response()
-        response.headers['X-Slack-No-Retry'] = 1
-        response.status_code = 200
-        return response  # 直接返回，不做後續處理，避免無窮迴圈
+  
     else:
         # 確保每個事件只被處理一次
         if payload.get("type") == "event_callback":
@@ -88,8 +90,8 @@ def slack_events():
             # Ignore bot's own messages
             if user and prompt and channel_id and not bot_id:
                 # when a text message comes in from a user, respond "GOT IT"
-                client.chat_postMessage(channel=channel_id, text='GOT IT')
-                return payload
+                #client.chat_postMessage(channel=channel_id, text='GOT IT')
+                
                 response = openai.ChatCompletion.create(
                             model="gpt-4-1106-preview",
                             messages=[
@@ -107,10 +109,7 @@ def slack_events():
 
 
 
-    response = Response()
-    response.headers['X-Slack-No-Retry'] = 1
-    response.status_code = 200
-    return response
+    return {"statusCode": 200}
 
 @app.route("/slack/events/backup", methods=["POST"])
 def slack_events_backup():
