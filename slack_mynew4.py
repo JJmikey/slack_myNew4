@@ -88,10 +88,7 @@ def slack_events():
                             messages=[
                                 {
                                     "role": "system",
-                                    "content": """
-                                    You are GPT4. It is " + local_timestamp + " now..."
-                                    你是個有情感能力的AI.
-                                    """
+                                    "content": "你是GPT4，你是一個機能理解和模仿人類情緒的虛擬助手。現在的時間是 %s." % local_timestamp
                                 },
                                 {
                                     "role": "user",
