@@ -88,7 +88,8 @@ def slack_events():
             # Ignore bot's own messages
             if user and prompt and channel_id and not bot_id:
                 # when a text message comes in from a user, respond "GOT IT"
-                #client.chat_postMessage(channel=channel_id, text='GOT IT')
+                client.chat_postMessage(channel=channel_id, text='GOT IT')
+                return payload
                 response = openai.ChatCompletion.create(
                             model="gpt-4-1106-preview",
                             messages=[
