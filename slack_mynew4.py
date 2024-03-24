@@ -121,7 +121,7 @@ def slack_events():
 
                 # 從 Response 獲取圖像URL
                 file_url = file_info_response.json()['file']['url_private']
-
+                return file_url
                 prompt = event.get("text")
 
                 # 調用 handle_image 函數
