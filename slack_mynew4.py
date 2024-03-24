@@ -3,6 +3,11 @@ from slack_sdk.oauth import AuthorizeUrlGenerator
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
+import logging
+import asyncio
+from slack_sdk.web.async_client import AsyncWebClient
+
+
 import os 
 
 import openai
@@ -16,6 +21,8 @@ from datetime import datetime
 from pytz import timezone
 
 app = Flask(__name__)
+slack_bot_token = os.environ["SLACK_BOT_TOKEN"] # 用以調用 Slack API 
+client = AsyncWebClient(token=slack_bot_token)
 
 hongkong_tz = timezone('Asia/Hong_Kong')
 hongkong_time = datetime.now(hongkong_tz)
@@ -24,14 +31,10 @@ local_timestamp = hongkong_time.isoformat(timespec='seconds')
 # 你的 OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-slack_bot_token = os.environ["SLACK_BOT_TOKEN"] # 用以調用 Slack API 
-client = WebClient(token=slack_bot_token)
-print(os.getenv("SLACK_BOT_TOKEN"))
 
 slack_client_id = os.environ["SLACK_CLIENT_ID"]
 slack_client_secret = os.environ["SLACK_CLIENT_SECRET"]
 
-import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -62,6 +65,12 @@ def handle_image(file_url):
     response_message = vision_response['choices'][0]['message']['content']
     return response_message
 
+
+async def send_message(channel_id, text):
+    try:
+        response = await client.chat_postMessage(channel=channel_id, text=text)
+    except SlackApiError as e:
+        print(f"Got an error: {e.response['error']}")
 
 
 @app.route("/slack/events", methods=["POST"])
@@ -105,7 +114,7 @@ def slack_events():
                         )
             
                         logging.debug("GPT-4 response: %s", response)
-                        client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
+                        asyncio.run(send_message(channel_id, response['choices'][0]['message']['content']))
         
                     except Exception as e:
                         logging.debug("Error: %s", e)
