@@ -85,7 +85,7 @@ def slack_events():
                     client.chat_postMessage(channel=channel_id, text='got it!')
         
                     
-        return {"statusCode": 200}
+    return {"statusCode": 200}
 
 @app.route("/slack/events_backup", methods=["POST"])
 def slack_events():
