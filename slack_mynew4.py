@@ -76,13 +76,32 @@ def slack_events():
         if payload.get("type") == "event_callback":
             event = payload.get("event", {})
             user = event.get("user")
-            text = event.get("text")
+            prompt = event.get("text")
             channel_id = event.get("channel")
  
             # Ignore bot's own messages
-            if user and text and channel_id and 'bot_id' not in event:
+            if user and prompt and channel_id and 'bot_id' not in event:
                 # when a text message comes in from a user, respond "GOT IT"
-                client.chat_postMessage(channel=channel_id, text='GOT IT')
+                #client.chat_postMessage(channel=channel_id, text='GOT IT')
+                response = openai.ChatCompletion.create(
+                            model="gpt-4-1106-preview",
+                            messages=[
+                                {
+                                    "role": "system",
+                                    "content": """
+                                    You are GPT4. It is " + local_timestamp + " now..."
+                                    你是個有情感能力的AI.
+                                    """
+                                },
+                                {
+                                    "role": "user",
+                                    "content": prompt
+                                }
+                            ]
+                        )
+                client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
+
+
 
     return {"statusCode": 200}
 
