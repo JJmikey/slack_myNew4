@@ -71,6 +71,7 @@ def handle_image(file_content,prompt):
 
     # 將縮小的圖片轉換回二進制數據
     output = io.BytesIO()
+    image = image.convert('RGB')
     image.save(output, format='JPEG')
     resized_content = output.getvalue()
 
@@ -83,7 +84,7 @@ def handle_image(file_content,prompt):
         messages=[
             {
                 "role": "system",
-                "content":"start your reply with 'GPT4:'. Describe the photo."
+                "content":"start your reply with 'GPT4:'"+ prompt
             },
             {
                 "role": "user",
