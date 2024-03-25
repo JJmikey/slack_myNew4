@@ -89,10 +89,10 @@ def handle_image(file_content,prompt):
             "content": [
             {"type": "text", "text": "What’s in this image?"},
             {
-                "type": "data:image/jpeg;base64",
-                "b64 string": {
-                b64_string,
-            },
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{b64_string}"
+                },
             },
             ],
         }
