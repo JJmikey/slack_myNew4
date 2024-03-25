@@ -32,6 +32,8 @@ client = WebClient(token=slack_bot_token)
 slack_client_id = os.environ["SLACK_CLIENT_ID"]
 slack_client_secret = os.environ["SLACK_CLIENT_SECRET"]
 
+vision_only = False
+
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -82,16 +84,20 @@ def handle_image(file_content,prompt):
     vision_response = openai.ChatCompletion.create(
         model="gpt-4-vision-preview",
         messages=[
+        {
+            "role": "user",
+            "content": [
+            {"type": "text", "text": "What’s in this image?"},
             {
-                "role": "system",
-                "content":"start your reply with 'GPT4:'"+ prompt
+                "type": "data:image/jpeg;base64",
+                "b64 string": {
+                b64_string,
             },
-            {
-                "role": "user",
-                "content": "data:image/jpeg;base64," + b64_string
-            }
+            },
+            ],
+        }
         ]
-        )
+    )
 
     response_message = vision_response['choices'][0]['message']['content']
     return response_message
@@ -129,6 +135,7 @@ def slack_events():
                 # 檢查是否有檔案附件
                 files = event.get("files", [])
                 if files:
+                    vision_only =True
                     for file in files:
                         file_id = file["id"]
                         # 下載檔案
@@ -143,7 +150,7 @@ def slack_events():
                     client.chat_postMessage(channel=channel_id, text=response_message)
 
                 # Ignore bot's own messages
-                if user and prompt and channel_id and not bot_id:
+                if user and prompt and channel_id and not bot_id and not vision_only:
                     # when a text message comes in from a user, respond "GOT IT"
                     #client.chat_postMessage(channel=channel_id, text='GOT IT')
                 
