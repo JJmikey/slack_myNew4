@@ -56,21 +56,19 @@ def download_file(file_id):
     file_response = requests.get(file_url, headers={'Authorization': 'Bearer {}'.format(slack_bot_token)})
 
     # 回傳文件內容
-    file_content = file_response.text
+    file_content = file_response.content
+    
     return file_content
 
 
-def handle_image(file_url,prompt):
-    # 從 file_url 獲取圖像
-    img_data = requests.get(file_url).content
-
+def handle_image(file_content,prompt):
     # 將圖像數據轉換為 base64 編碼
-    b64_string = base64.b64encode(img_data).decode()
+    b64_string = base64.b64encode(file_content).decode()
 
     # 使用 GPT-4 Vision 處理圖像
     vision_response = openai.ChatCompletion.create(
         model="gpt-4-vision-preview",
-         messages=[
+        messages=[
             {
                 "role": "system",
                 "content":"start your reply with 'GPT4:'. Describe the photo."
@@ -127,10 +125,9 @@ def slack_events():
                         token=slack_bot_token,
                         channel=channel_id,
                         text="收到圖片")
-            
 
-
-
+                    response_message=handle_image(file_content,prompt)
+                    client.chat_postMessage(channel=channel_id, text=response_message)
 
                 # Ignore bot's own messages
                 if user and prompt and channel_id and not bot_id:
@@ -152,22 +149,7 @@ def slack_events():
                         )
                     client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
 
-            elif event_type == "file_shared":
-                client.chat_postMessage(channel=channel_id, text='photo!')
-                # 獲取 file_id
-                file_id = event.get("file_id")
-
-                # 下載文件
-                file_content = download_file(file_id)
-
-
-                # 回應用戶 "收到圖片"
-                response = client.slackPostMessage(
-                        token=slack_bot_token,
-                        channel=channel_id,
-                        text="收到圖片")
-
-                return jsonify({'ok': True}), 200
+         
 
         return {"statusCode": 200}
 
