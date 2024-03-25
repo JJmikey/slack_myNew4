@@ -115,6 +115,23 @@ def slack_events():
                 channel_id = event.get("channel")
                 bot_id = event.get("bot_id")
 
+                # 檢查是否有檔案附件
+                files = event.get("files", [])
+                if files:
+                    for file in files:
+                        file_id = file["id"]
+                        # 下載檔案
+                        file_content = download_file(file_id)
+                        # 回應用戶 "收到圖片"
+                        client.chat_postMessage(
+                        token=slack_bot_token,
+                        channel=channel_id,
+                        text="收到圖片")
+            
+
+
+
+
                 # Ignore bot's own messages
                 if user and prompt and channel_id and not bot_id:
                     # when a text message comes in from a user, respond "GOT IT"
