@@ -62,8 +62,20 @@ def download_file(file_id):
 
 
 def handle_image(file_content,prompt):
+    # 讀取原始圖片數據
+    image = Image.open(io.BytesIO(file_content))
+
+    # 縮小圖片
+    max_size = (800, 800)
+    image.thumbnail(max_size)
+
+    # 將縮小的圖片轉換回二進制數據
+    output = io.BytesIO()
+    image.save(output, format='JPEG')
+    resized_content = output.getvalue()
+
     # 將圖像數據轉換為 base64 編碼
-    b64_string = base64.b64encode(file_content).decode()
+    b64_string = base64.b64encode(resized_content).decode()
 
     # 使用 GPT-4 Vision 處理圖像
     vision_response = openai.ChatCompletion.create(
