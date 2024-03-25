@@ -66,7 +66,7 @@ def handle_image(file_content,prompt):
     image = Image.open(io.BytesIO(file_content))
 
     # 縮小圖片
-    max_size = (800, 800)
+    max_size = (400, 400)
     image.thumbnail(max_size)
 
     # 將縮小的圖片轉換回二進制數據
