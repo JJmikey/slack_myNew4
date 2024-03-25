@@ -136,6 +136,7 @@ def slack_events():
                     client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
 
             elif event_type == "file_shared":
+                client.chat_postMessage(channel=channel_id, text='photo!')
                 # 獲取 file_id
                 file_id = event.get("file_id")
 
@@ -151,26 +152,6 @@ def slack_events():
 
                 return jsonify({'ok': True}), 200
 
-        return {"statusCode": 200}
-
-@app.route("/slack/events/backup", methods=["POST"])
-def slack_events_backup():
-    payload = request.json
-    #return payload
-
-    if "challenge" in payload:
-        return payload["challenge"], 200  # 马上返回所需要的`challenge`参数的值
-    else:
-        # 確保每個事件只被處理一次
-        if payload.get("type") == "event_callback":
-            event = payload.get("event", {})
-            channel_id = event.get("channel")
-            if channel_id is not None:
-                # 判斷這是圖像還是一般訊息事件
-                if 'files' in event:     # 如果事件包含文件
-                    file_url = event['files'][0]['url_private']
-                    response_message = handle_image(file_url)  # 處理並回覆圖片
-                
         return {"statusCode": 200}
 
 
