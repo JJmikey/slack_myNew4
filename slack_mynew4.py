@@ -5,10 +5,10 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 import os 
+import requests
 
 import openai
 
-import requests
 from PIL import Image
 import io 
 import base64
@@ -35,6 +35,30 @@ slack_client_secret = os.environ["SLACK_CLIENT_SECRET"]
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
+
+def download_file(file_id):
+      
+    # 用Token獲取文件訊息
+    FILE_INFO_URL = 'https://slack.com/api/files.info'
+    file_info_response = requests.get(
+        FILE_INFO_URL, 
+        headers={
+            'Authorization': 'Bearer {}'.format(slack_bot_token)
+        }, 
+        params={
+            'file': file_id
+        })
+
+    # 從response中檢索出文件URL
+    file_url = file_info_response.json()['file']['url_private']
+
+    # 使用GET來下載文件
+    file_response = requests.get(file_url, headers={'Authorization': 'Bearer {}'.format(slack_bot_token)})
+
+    # 回傳文件內容
+    file_content = file_response.text
+    return file_content
+
 
 def handle_image(file_url,prompt):
     # 從 file_url 獲取圖像
@@ -115,27 +139,19 @@ def slack_events():
                 # 獲取 file_id
                 file_id = event.get("file_id")
 
-                # Now retrieve the shared file's info.
-                FILE_INFO_URL = 'https://slack.com/api/files.info'
-                file_info_response = requests.get(FILE_INFO_URL, params={'token': slack_bot_token, 'file': file_id})
+                # 下載文件
+                file_content = download_file(file_id)
 
-                # 從 Response 獲取圖像URL
-                file_url = file_info_response.json()['file']['url_private']
+
+                # 回應用戶 "收到圖片"
                 response = client.slackPostMessage(
-                            token=slack_bot_token,
-                            channel=channel_id,
-                            text=f"File shared with id: {file_id}, and file_info_response: {file_info_response.json()}"
-                )
-                return file_url
-                prompt = event.get("text")
+                        token=slack_bot_token,
+                        channel=channel_id,
+                        text="收到圖片")
 
-                # 調用 handle_image 函數
-                response_message = handle_image(file_url,prompt)
+                return jsonify({'ok': True}), 200
 
-                client.chat_postMessage(channel=channel_id, text=response_message)
-
-
-    return {"statusCode": 200}
+        return {"statusCode": 200}
 
 @app.route("/slack/events/backup", methods=["POST"])
 def slack_events_backup():
