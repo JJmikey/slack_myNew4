@@ -136,6 +136,9 @@ def slack_events():
                 channel_id = event.get("channel")
                 bot_id = event.get("bot_id")
 
+                # Set vision_only to False initially
+                vision_only = False 
+
                 # 檢查是否有檔案附件
                 files = event.get("files", [])
                 if files:
