@@ -5,7 +5,11 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 import os 
-import requests
+import requests #only required when using proxy
+from requests.exceptions import HTTPError
+
+import json
+from json import JSONDecodeError
 
 import openai
 
@@ -200,6 +204,42 @@ def site_map():
         methods = ', '.join(sorted(rule.methods))
         output.append(f"{rule} ({methods})")
     return "<br>".join(sorted(output))
+
+
+@app.route("/test", methods=["POST"])
+def test():
+    url = 'https://api.shuttleai.app/v1/chat/completions'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer shuttle-8619fc3825f9175a8ee5',
+          
+    }
+
+    data = {
+        "model": "shuttle-instant",
+        "messages": [{"role": "user", "content": "tell me a joke."}],
+        "temperature": 0.7
+    }
+
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+
+        # If the response was successful, no Exception will be raised
+        response.raise_for_status()
+    except HTTPError as http_err:
+        print(f'HTTP error occurred: {http_err}''')  # Python 3.6
+    except Exception as err:
+        print(f'其他錯誤發生: {err}')  # Python 3.6
+    else:
+        print('成功')
+
+    if response.status_code == 200: 
+        try:
+            return response.json()
+        except JSONDecodeError:
+            return "Error: Response could not be parsed as JSON."
+    else:
+        return "Error: Received status code " + str(response.status_code)
 
 
 if __name__ == "__main__":
