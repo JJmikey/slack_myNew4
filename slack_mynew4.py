@@ -161,21 +161,47 @@ def slack_events():
                     # when a text message comes in from a user, respond "GOT IT"
                     #client.chat_postMessage(channel=channel_id, text='GOT IT')
                 
+                    # 获取历史消息
+                    history = client.conversations_history(
+                        channel=channel_id,
+                        count=10
+                    )
+
+                    # 创建消息列表
+                    messages = [
+                        {
+                            "role": "system",
+                            "content": "你是GPT4，你是一個機能理解和模仿人類情緒的虛擬助手。現在的時間是 %s." % local_timestamp
+                        },
+                    ]
+
+                    # 限制历史消息的数目，并将历史消息添加到列表
+                    # 注意：我们将历史消息从最早的开始添加，以维持他们的顺序
+                    for msg in reversed(history['messages'][-10:]):
+                        role = 'assistant' if msg['user'] == 'U06QDBXQESE' else 'user'
+                        messages.append(
+                            {
+                                "role": role,
+                                "content": msg['text']
+                            }
+                        )
+
+                    # 添加用户的当前消息
+                    messages.append(
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    )
+
+
                     response = openai.ChatCompletion.create(
                             model="gpt-4-1106-preview",
-                            messages=[
-                                {
-                                    "role": "system",
-                                    "content": "你是GPT4，你是一個機能理解和模仿人類情緒的虛擬助手。現在的時間是 %s." % local_timestamp
-                                },
-                                {
-                                    "role": "user",
-                                    "content": prompt
-                                }
-                            ]
+                            messages=messages
                         )
                     client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
 
+                    #channel history -- extract and write to file (need to develop this feature)
                     history = client.conversations_history(
                         channel=channel_id,
                         oldest='1711382400',
@@ -191,10 +217,10 @@ def slack_events():
                         for msg in messages:
                             messages_text += f"User: {msg['user']} Text: {msg['text']}\n"
 
-                        if messages_text.strip() == "":
-                            client.chat_postMessage(channel=channel_id, text="No messages were found in the given time range.")
-                        else:
-                            client.chat_postMessage(channel=channel_id, text=messages_text)
+                        #if messages_text.strip() == "":
+                            #client.chat_postMessage(channel=channel_id, text="No messages were found in the given time range.")
+                        #else:
+                            #client.chat_postMessage(channel=channel_id, text=messages_text)
          
 
         return {"statusCode": 200}
