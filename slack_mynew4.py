@@ -214,7 +214,7 @@ def test():
 
     shuttle_url = 'https://api.shuttleai.app/v1/chat/completions' 
     shuttle_key = 'Bearer shuttle-8619fc3825f9175a8ee5'  
-    shuttle_model = "shuttle-instant"
+    shuttle_model = "shuttle-turbo"
     oxy_url = 'https://app.oxyapi.uk/v1/chat/completions'
     oxy_key = 'Bearer oxy-mWs1TuolqoT44Cmfj3ixE8FHRcqANOXEVn8abrQ24GBpo'
     oxy_model = "gpt-3.5-turbo"
