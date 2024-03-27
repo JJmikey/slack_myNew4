@@ -178,7 +178,7 @@ def slack_events():
                     # 限制历史消息的数目，并将历史消息添加到列表
                     # 注意：我们将历史消息从最早的开始添加，以维持他们的顺序
                     # 最古老訊息: 用reversed(history['messages'][-10:])表達
-                    for msg in (history['messages'][-6:]):
+                    for msg in (history['messages'][0:]):
                         role = 'assistant' if msg['user'] == 'U06QDBXQESE' else 'user'
                         messages.append(
                             {
