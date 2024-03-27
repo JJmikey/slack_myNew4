@@ -257,6 +257,8 @@ def site_map():
 
 @app.route("/test", methods=["POST"])
 def test():
+    # Get user's message from the request data
+    user_message = request.json['content']
 
     shuttle_url = 'https://api.shuttleai.app/v1/chat/completions' 
     shuttle_key = 'Bearer shuttle-8619fc3825f9175a8ee5'  
@@ -273,7 +275,7 @@ def test():
 
     data = {
         "model": shuttle_model,
-        "messages": [{"role": "user", "content": "我是女的,我有3個哥哥,每個哥哥各有2個妹妹。那我有多少個姊妹?"}],
+        "messages": [{"role": "user", "content": user_message}],
         "temperature": 0.7
     }
 
