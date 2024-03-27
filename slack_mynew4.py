@@ -211,21 +211,25 @@ def site_map():
 
 @app.route("/test", methods=["POST"])
 def test():
-    url = 'https://api.shuttleai.app/v1/chat/completions'
+
+    shuttle_url = 'https://api.shuttleai.app/v1/chat/completions' 
+    shuttle_key = 'Bearer shuttle-8619fc3825f9175a8ee5'  
+
+    url = 'https://app.oxyapi.uk/v1/chat/completions'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer shuttle-8619fc3825f9175a8ee5',
+        'Authorization': 'Bearer oxy-mWs1TuolqoT44Cmfj3ixE8FHRcqANOXEVn8abrQ24GBpo',
           
     }
 
     data = {
-        "model": "shuttle-instant",
+        "model": "gpt-3.5-turbo",
         "messages": [{"role": "user", "content": "tell me a joke."}],
         "temperature": 0.7
     }
 
     try:
-        response = requests.post(url, headers=headers, data=json.dumps(data))
+        response = requests.post(url, headers=headers, json=data)
 
         # If the response was successful, no Exception will be raised
         response.raise_for_status()
