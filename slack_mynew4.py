@@ -194,10 +194,10 @@ def slack_events():
                                 messages.append(content_msg)
 
                     # Create a single string from all messages
-                    text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
+                    text_history = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
 
                     # Post the message text
-                    client.chat_postMessage(channel=channel_id, text=text)
+                    client.chat_postMessage(channel=channel_id, text=text_history)
 
                     #PROXY
                     text = test(messages)
