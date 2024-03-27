@@ -200,17 +200,16 @@ def slack_events():
                     client.chat_postMessage(channel=channel_id, text=text)
 
                     #PROXY
-                    test(messages)
-
-
+                    text = test(messages)
+                
                     #using OPENAI API
-                    response = openai.ChatCompletion.create(
-                            model="gpt-4-1106-preview",
-                            messages=messages
-                        )
+                    #response = openai.ChatCompletion.create(
+                    #        model="gpt-4-1106-preview",
+                    #        messages=messages
+                    #    )
                     
-
-                    client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
+                    #text=response['choices'][0]['message']['content']
+                    client.chat_postMessage(channel=channel_id, text=text)
 
                     #channel history -- extract and write to file (need to develop this feature)
                     history = client.conversations_history(
