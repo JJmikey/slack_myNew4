@@ -302,9 +302,10 @@ def test(messages):
 
     if response.status_code == 200: 
         try:
-           text=response['choices'][0]['message']['content']
-           return text
-           return response.json()  #for using postman
+            json_response = response.json()
+            text = json_response['choices'][0]['message']['content']
+            return text
+            return response.json()  #for using postman
            
         except JSONDecodeError:
             return "Error: Response could not be parsed as JSON."
