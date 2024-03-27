@@ -179,7 +179,7 @@ def slack_events():
                     # 注意：我们将历史消息从最早的开始添加，以维持他们的顺序
                     # 最古老訊息: 用reversed(history['messages'][-10:])表達
                     # Get the latest pair of messages and reverse it to get it in order
-                    messages_history = history['messages'][0:6][::-1]            
+                    messages_history = history['messages'][0:1][::-1]            
                                       
                     for msg in messages_history:
                         if msg['user'] != 'system':  # ignore system messages
