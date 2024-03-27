@@ -260,7 +260,7 @@ def test():
 
     shuttle_url = 'https://api.shuttleai.app/v1/chat/completions' 
     shuttle_key = 'Bearer shuttle-8619fc3825f9175a8ee5'  
-    shuttle_model = "shuttle-turbo"
+    shuttle_model = "gpt-4-0613"
     oxy_url = 'https://app.oxyapi.uk/v1/chat/completions'
     oxy_key = 'Bearer oxy-mWs1TuolqoT44Cmfj3ixE8FHRcqANOXEVn8abrQ24GBpo'
     oxy_model = "gpt-3.5-turbo"
@@ -273,7 +273,7 @@ def test():
 
     data = {
         "model": shuttle_model,
-        "messages": [{"role": "user", "content": "tell me a joke."}],
+        "messages": [{"role": "user", "content": "我是女的,我有3個哥哥,每個哥哥各有2個妹妹。那我有多少個姊妹?"}],
         "temperature": 0.7
     }
 
