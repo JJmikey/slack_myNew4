@@ -214,16 +214,19 @@ def test():
 
     shuttle_url = 'https://api.shuttleai.app/v1/chat/completions' 
     shuttle_key = 'Bearer shuttle-8619fc3825f9175a8ee5'  
-
-    url = 'https://app.oxyapi.uk/v1/chat/completions'
+    shuttle_model = "shuttle-instant"
+    oxy_url = 'https://app.oxyapi.uk/v1/chat/completions'
+    oxy_key = 'Bearer oxy-mWs1TuolqoT44Cmfj3ixE8FHRcqANOXEVn8abrQ24GBpo'
+    oxy_model = "gpt-3.5-turbo"
+    url = shuttle_url
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer oxy-mWs1TuolqoT44Cmfj3ixE8FHRcqANOXEVn8abrQ24GBpo',
+        'Authorization': shuttle_key,
           
     }
 
     data = {
-        "model": "gpt-3.5-turbo",
+        "model": shuttle_model,
         "messages": [{"role": "user", "content": "tell me a joke."}],
         "temperature": 0.7
     }
