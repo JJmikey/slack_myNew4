@@ -174,18 +174,14 @@ def slack_events():
                             "content": "你是GPT4，你是一個機能理解和模仿人類情緒的虛擬助手。現在的時間是 %s." % local_timestamp
                         },
                     ]
-
+                   
                     # 限制历史消息的数目，并将历史消息添加到列表
                     # 注意：我们将历史消息从最早的开始添加，以维持他们的顺序
-                                       
-                    # Reinitializing the messages list to store the recent messages
-                    messages = []
-                    
                     # 最古老訊息: 用reversed(history['messages'][-10:])表達
-                    # 获取最新的一对消息并反转，使其按照时间顺序
-                    messages = history['messages'][0:2][::-1]
-
-                    for msg in history['messages'][0:2][::-1]:
+                    # Get the latest pair of messages and reverse it to get it in order
+                    messages_history = history['messages'][0:2][::-1]            
+                                      
+                    for msg in messages_history:
                         role = 'assistant' if msg['user'] == 'U06QDBXQESE' else 'user'
                         content = {
                             "role": role,
@@ -193,7 +189,6 @@ def slack_events():
                         }
                         # Add the message dictionary to the messages list
                         messages.append(content)
-
 
                     # Create a single string from all messages
                     text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
