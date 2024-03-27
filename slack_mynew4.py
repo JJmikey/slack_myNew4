@@ -178,7 +178,7 @@ def slack_events():
                     # 限制历史消息的数目，并将历史消息添加到列表
                     # 注意：我们将历史消息从最早的开始添加，以维持他们的顺序
                     # 最古老訊息: 用reversed(history['messages'][-10:])表達
-                    for msg in (history['messages'][0:]):
+                    for msg in (history['messages'][0:1]):
                         role = 'assistant' if msg['user'] == 'U06QDBXQESE' else 'user'
                         messages.append(
                             {
@@ -195,11 +195,11 @@ def slack_events():
                         }
                     )
 
-                    #check history messages
-                    if messages == "":
-                        client.chat_postMessage(channel=channel_id, text="No messages were found in the given time range.")
-                    else:
-                        client.chat_postMessage(channel=channel_id, text=messages)
+                    # Create a single string from all messages
+                    text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
+
+                    # Post the message text
+                    client.chat_postMessage(channel=channel_id, text=text)
 
 
                     response = openai.ChatCompletion.create(
