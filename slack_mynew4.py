@@ -182,11 +182,12 @@ def slack_events():
                     messages_history = history['messages'][0:6][::-1]            
                                       
                     for msg in messages_history:
-                        role = 'assistant' if msg['user'] == 'U06QDBXQESE' else 'user'
-                        content_msg = {
-                            "role": role,
-                            "content": msg['text']
-                        }
+                        if msg['user'] != 'system':  # ignore system messages
+                            role = 'assistant' if msg['user'] == 'U06QDBXQESE' else 'user'
+                            content_msg = {
+                                "role": role,
+                                "content": msg['text']
+                            }
                         # Check if the message is already in the list
                         if content_msg not in messages:
                             # Add the message dictionary to the messages list
