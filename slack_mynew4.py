@@ -178,8 +178,8 @@ def slack_events():
 
                     history = client.conversations_history(
                         channel=channel_id,
-                        oldest='1711505775',
-                        latest='1711516575'
+                        oldest='1711382400',
+                        #latest='1711516575'
                     )
 
                     # 检查是否成功获取历史信息
@@ -191,10 +191,10 @@ def slack_events():
                         for msg in messages:
                             messages_text += f"User: {msg['user']} Text: {msg['text']}\n"
 
-                        # 在channel中发送消息历史
-                        client.chat_postMessage(channel=channel_id, text=messages_text)
-                    else:
-                        client.chat_postMessage(channel=channel_id, text="Failed to retrieve channel history.")
+                        if messages_text.strip() == "":
+                            client.chat_postMessage(channel=channel_id, text="No messages were found in the given time range.")
+                        else:
+                            client.chat_postMessage(channel=channel_id, text=messages_text)
          
 
         return {"statusCode": 200}
