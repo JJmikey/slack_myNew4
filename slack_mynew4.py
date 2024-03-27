@@ -176,6 +176,13 @@ def slack_events():
                         )
                     client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
 
+                    response = client.conversations_history(
+                        channel=channel_id,
+                        oldest='1711505775',
+                        latest='1711516575'
+                    )
+
+                    client.chat_postMessage(channel=channel_id, text=response)
          
 
         return {"statusCode": 200}
