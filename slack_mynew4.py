@@ -182,7 +182,7 @@ def slack_events():
                     messages_history = history['messages'][0:2][::-1]            
                                       
                     for msg in messages_history:
-                        if msg['user'] != 'system':  # ignore system messages
+                        if 'role' in msg and msg['role'] != 'system':  # ignore system messages
                             role = 'assistant' if msg['user'] == 'U06QDBXQESE' else 'user'
                             content_msg = {
                                 "role": role,
@@ -199,11 +199,17 @@ def slack_events():
                     # Post the message text
                     client.chat_postMessage(channel=channel_id, text=text)
 
+                    #PROXY
+                    test(messages)
 
+
+                    #using OPENAI API
                     response = openai.ChatCompletion.create(
                             model="gpt-4-1106-preview",
                             messages=messages
                         )
+                    
+
                     client.chat_postMessage(channel=channel_id, text=response['choices'][0]['message']['content'])
 
                     #channel history -- extract and write to file (need to develop this feature)
@@ -260,9 +266,9 @@ def site_map():
 
 
 @app.route("/test", methods=["POST"])
-def test():
-    # Get user's message from the request data
-    user_message = request.json['content']
+def test(messages):
+    # Get user's message from the request data (using postman)
+    #user_message = request.json['content']
 
     shuttle_url = 'https://api.shuttleai.app/v1/chat/completions' 
     shuttle_key = 'Bearer shuttle-8619fc3825f9175a8ee5'  
@@ -279,7 +285,7 @@ def test():
 
     data = {
         "model": shuttle_model,
-        "messages": [{"role": "user", "content": user_message}],
+        "messages": [{"role": "user", "content": messages}],
         "temperature": 0.7
     }
 
@@ -297,7 +303,10 @@ def test():
 
     if response.status_code == 200: 
         try:
-            return response.json()
+           text=response['choices'][0]['message']['content']
+           return text
+           return response.json()  #for using postman
+           
         except JSONDecodeError:
             return "Error: Response could not be parsed as JSON."
     else:
