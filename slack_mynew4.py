@@ -195,6 +195,12 @@ def slack_events():
                         }
                     )
 
+                    #check history messages
+                    if messages.strip() == "":
+                        client.chat_postMessage(channel=channel_id, text="No messages were found in the given time range.")
+                    else:
+                        client.chat_postMessage(channel=channel_id, text=messages)
+
 
                     response = openai.ChatCompletion.create(
                             model="gpt-4-1106-preview",
