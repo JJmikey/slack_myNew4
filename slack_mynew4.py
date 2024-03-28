@@ -181,7 +181,7 @@ def slack_events():
                     # Get the latest pair of messages and reverse it to get it in order
                     messages_history = history['messages'][0:2][::-1]            
                                       
-                    for msg in (history['messages'][0:1]):
+                    for msg in messages_history:
                         if 'role' in msg and msg['role'] != 'system':  # ignore system messages
                             role = 'assistant' if msg['user'] == 'U06QDBXQESE' else 'user'
                             messages.append(
