@@ -164,7 +164,7 @@ def slack_events():
                     # 获取历史消息
                     history = client.conversations_history(
                         channel=channel_id,
-                        count=4
+                        limit=4
                     )
 
                     # 创建消息列表
@@ -179,25 +179,28 @@ def slack_events():
                     # 注意：我们将历史消息从最早的开始添加，以维持他们的顺序
                     # 最古老訊息: 用reversed(history['messages'][-10:])表達
                     # Get the latest pair of messages and reverse it to get it in order
-                    messages_history = history['messages'][0:2][::-1]            
+                    messages_history = history['messages'][0:5][::-1]            
                                       
-                    for msg in messages_history:
-                        if 'role' in msg and msg['role'] != 'system':  # ignore system messages
-                            role = 'assistant' if msg['user'] == 'U06QDBXQESE' else 'user'
-                            messages.append(
-                            {
+                    # 遍歷訊息歷史
+                    for msg in history['messages']:
+                        if msg['type'] == 'message' and 'subtype' not in msg:
+                            # 從 'blocks' 中提取文字
+                            text = ''
+                            for block in msg.get('blocks', []):
+                                for element in block.get('elements', []):
+                                    for inner_elem in element.get('elements', []):
+                                        if inner_elem['type'] == 'text':
+                                            text += inner_elem.get('text', '')
+                            # 根據 'bot_id' 是否存在來判定 'role'
+                            role = 'assistant' if 'bot_id' in msg else 'user'
+                            # 創建訊息 dictionary
+                            content_msg = {
                                 "role": role,
-                                "content": msg['text']
+                                "content": text
                             }
-                            )
 
-                        # 添加用户的当前消息
-                        messages.append(
-                        {
-                            "role": "user",
-                            "content": prompt
-                        }
-                        )
+                        # 將訊息加入訊息列表
+                        messages.append(content_msg)
 
                   
 
