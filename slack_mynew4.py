@@ -167,9 +167,6 @@ def slack_events():
                         count=4
                     )
 
-                    # testing history message
-                    client.chat_postMessage(channel=channel_id, text=history)
-
                     # 创建消息列表
                     messages = [
                         {
@@ -186,7 +183,7 @@ def slack_events():
                                       
                     for msg in messages_history:
                         if 'role' in msg and msg['role'] != 'system':  # ignore system messages
-                            role = 'assistant' if msg['user'] == 'U06QDBXQESE' else 'user'
+                            role = 'assistant' if msg['User'] == 'U06QDBXQESE' else 'user'
                             content_msg = {
                                 "role": role,
                                 "content": msg['text']
