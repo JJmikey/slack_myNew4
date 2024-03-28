@@ -181,25 +181,35 @@ def slack_events():
                     # Get the latest pair of messages and reverse it to get it in order
                     messages_history = history['messages'][0:2][::-1]            
                                       
-                    for msg in messages_history:
+                    for msg in (history['messages'][0:1]):
                         if 'role' in msg and msg['role'] != 'system':  # ignore system messages
-                            role = 'assistant' if msg['User'] == 'U06QDBXQESE' else 'user'
-                            content_msg = {
+                            role = 'assistant' if msg['user'] == 'U06QDBXQESE' else 'user'
+                            messages.append(
+                            {
                                 "role": role,
                                 "content": msg['text']
                             }
-                            messages.append(content_msg) #testing
+                            )
 
-                            # Check if the message is already in the list
-                            #if content_msg not in messages:
-                                # Add the message dictionary to the messages list
-                            #    messages.append(content_msg)
+                        # 添加用户的当前消息
+                        messages.append(
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                        )
+
+                    #check history messages
+                    if messages == "":
+                        client.chat_postMessage(channel=channel_id, text="No messages were found in the given time range.")
+                    else:
+                        client.chat_postMessage(channel=channel_id, text=messages)
 
                     # Create a single string from all messages
-                    text_history = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
+                    #text_history = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
 
                     # Post the message text
-                    client.chat_postMessage(channel=channel_id, text=text_history)
+                    #client.chat_postMessage(channel=channel_id, text=text_history)
 
                     #PROXY
                     text = test(messages)
