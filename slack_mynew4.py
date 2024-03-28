@@ -208,7 +208,8 @@ def slack_events():
                     
                    
                     # 將用戶訊息添加到"消息历史记录"字串的最後
-                    text_history += "\n{role}: {content}".format(**user_msg)
+                    for msg in user_msg:
+                        text_history += "\n{role}: {content}".format(**msg)
 
                     #PROXY
                     #text = test(messages)
