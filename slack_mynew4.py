@@ -211,13 +211,29 @@ def slack_events():
                     for msg in user_msg:
                         text_history += "\n{role}: {content}".format(**msg)
 
+
+                    # 分裂 text_history 成基於換行符的 list
+                    split_history = text_history.split("\n")
+
+                    # 為每條訊息創建一個dictionary
+                    message_dicts = []
+                    for message in split_history:
+                        # 分裂 message 成 'role' 和 'content'
+                        role, content = message.split(': ', 1) 
+                        message_dict = {
+                            "role": role.strip(),
+                            "content": content.strip()
+                        }
+                        # 將 dictionary 添加至 message_dicts list
+                        message_dicts.append(message_dict)
+
                     #PROXY
                     #text = test(messages)
                 
                     #using OPENAI API
                     response = openai.ChatCompletion.create(
                             model="gpt-4-1106-preview",
-                            messages=text_history
+                            messages=message_dicts
                         )
                     
                     text=response['choices'][0]['message']['content']
