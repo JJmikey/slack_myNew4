@@ -164,8 +164,11 @@ def slack_events():
                     # 获取历史消息
                     history = client.conversations_history(
                         channel=channel_id,
-                        count=10
+                        count=4
                     )
+
+                    # testing history message
+                    client.chat_postMessage(channel=channel_id, text=history)
 
                     # 创建消息列表
                     messages = [
