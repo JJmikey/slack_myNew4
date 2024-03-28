@@ -161,25 +161,14 @@ def slack_events():
                     # when a text message comes in from a user, respond "GOT IT"
                     #client.chat_postMessage(channel=channel_id, text='GOT IT')
                 
-                    # 获取历史消息
+                    # 获取历史消息,限制历史消息的数目，并将历史消息添加到列表
                     history = client.conversations_history(
                         channel=channel_id,
                         limit=4
                     )
-
                     # 创建消息列表
-                    messages = [
-                        {
-                            "role": "system",
-                            "content": "你是GPT4，你是一個機能理解和模仿人類情緒的虛擬助手。現在的時間是 %s." % local_timestamp
-                        },
-                    ]
-                   
-                    # 限制历史消息的数目，并将历史消息添加到列表
-                    # 注意：我们将历史消息从最早的开始添加，以维持他们的顺序
-                    # 最古老訊息: 用reversed(history['messages'][-10:])表達
-                    # Get the latest pair of messages and reverse it to get it in order
-                    messages_history = history['messages'][0:5][::-1]            
+                    messages = []                  
+                                        
                                       
                     # 遍歷訊息歷史
                     for msg in history['messages']:
@@ -198,11 +187,28 @@ def slack_events():
                                 "role": role,
                                 "content": text
                             }
+                        # 將訊息加入訊息列表的最前面                        
+                        messages.insert(0, content_msg)
 
-                        # 將訊息加入訊息列表
-                        messages.append(content_msg)
 
-                  
+                    # 創建一個結合所有訊息的單一字符串
+                    text_history = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
+
+                    # 創建用戶訊息 dictionary
+                    user_msg = [
+                        {
+                            "role": "system",
+                            "content": "你是GPT4，你是一個機能理解和模仿人類情緒的虛擬助手。現在的時間是 %s." % local_timestamp
+                        },
+                        {
+                        "role": 'user',
+                        "content": prompt 
+                    }
+                    ]            
+                    
+                   
+                    # 將用戶訊息添加到"消息历史记录"字串的最後
+                    text_history += "\n{role}: {content}".format(**user_msg)
 
                     #PROXY
                     #text = test(messages)
@@ -210,7 +216,7 @@ def slack_events():
                     #using OPENAI API
                     response = openai.ChatCompletion.create(
                             model="gpt-4-1106-preview",
-                            messages=messages
+                            messages=text_history
                         )
                     
                     text=response['choices'][0]['message']['content']
