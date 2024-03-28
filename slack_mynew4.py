@@ -188,10 +188,12 @@ def slack_events():
                                 "role": role,
                                 "content": msg['text']
                             }
+                            messages.append(content_msg) #testing
+
                             # Check if the message is already in the list
-                            if content_msg not in messages:
+                            #if content_msg not in messages:
                                 # Add the message dictionary to the messages list
-                                messages.append(content_msg)
+                            #    messages.append(content_msg)
 
                     # Create a single string from all messages
                     text_history = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
