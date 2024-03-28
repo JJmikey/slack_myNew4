@@ -199,28 +199,18 @@ def slack_events():
                         }
                         )
 
-                    #check history messages
-                    if messages == "":
-                        client.chat_postMessage(channel=channel_id, text="No messages were found in the given time range.")
-                    else:
-                        client.chat_postMessage(channel=channel_id, text=messages)
-
-                    # Create a single string from all messages
-                    #text_history = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
-
-                    # Post the message text
-                    #client.chat_postMessage(channel=channel_id, text=text_history)
+                  
 
                     #PROXY
-                    text = test(messages)
+                    #text = test(messages)
                 
                     #using OPENAI API
-                    #response = openai.ChatCompletion.create(
-                    #        model="gpt-4-1106-preview",
-                    #        messages=messages
-                    #    )
+                    response = openai.ChatCompletion.create(
+                            model="gpt-4-1106-preview",
+                            messages=messages
+                        )
                     
-                    #text=response['choices'][0]['message']['content']
+                    text=response['choices'][0]['message']['content']
                     client.chat_postMessage(channel=channel_id, text=text)
 
                     #channel history -- extract and write to file (need to develop this feature)
