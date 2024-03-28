@@ -212,20 +212,20 @@ def slack_events():
                     client.chat_postMessage(channel=channel_id, text=text)
 
                     #channel history -- extract and write to file (need to develop this feature)
-                    history = client.conversations_history(
-                        channel=channel_id,
-                        oldest='1711382400',
-                        #latest='1711516575'
-                    )
+                    #history = client.conversations_history(
+                    #    channel=channel_id,
+                    #    oldest='1711382400',
+                    #    #latest='1711516575'
+                    #)
 
                     # 检查是否成功获取历史信息
-                    if history['ok']:
-                        messages = history['messages']
+                    #if history['ok']:
+                    #    messages = history['messages']
 
                         # 遍历消息并生成一个消息列表字符串
-                        messages_text = ""
-                        for msg in messages:
-                            messages_text += f"User: {msg['user']} Text: {msg['text']}\n"
+                    #    messages_text = ""
+                    #    for msg in messages:
+                    #        messages_text += f"User: {msg['user']} Text: {msg['text']}\n"
 
                         #if messages_text.strip() == "":
                             #client.chat_postMessage(channel=channel_id, text="No messages were found in the given time range.")
